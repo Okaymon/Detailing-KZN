@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple static file server for MS Detailing website."""
+"""Simple static file server for MS Detailing Carbon website."""
 import http.server
 import socketserver
 import os
@@ -23,5 +23,5 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
-    print(f"MS Detailing server running on port {PORT}")
+    print(f"MS Detailing Carbon server running on port {PORT}")
     httpd.serve_forever()
