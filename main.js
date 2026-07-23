@@ -342,6 +342,23 @@ if (form) {
     e.preventDefault();
     const btn  = form.querySelector('.cf-submit');
     const span = btn.querySelector('span');
+
+    const name    = document.getElementById('cfName').value.trim();
+    const phone   = document.getElementById('cfPhone').value.trim();
+    const car     = document.getElementById('cfCar').value.trim();
+    const service = document.getElementById('cfService').value.trim();
+    const msg     = document.getElementById('cfMsg').value.trim();
+
+    const lines = ['📋 Новая заявка с сайта MS Detailing Carbon'];
+    if (name)    lines.push(`👤 Имя: ${name}`);
+    if (phone)   lines.push(`📞 Телефон: ${phone}`);
+    if (car)     lines.push(`🚗 Автомобиль: ${car}`);
+    if (service) lines.push(`🔧 Услуга: ${service}`);
+    if (msg)     lines.push(`💬 Комментарий: ${msg}`);
+
+    const text = encodeURIComponent(lines.join('\n'));
+    window.open(`https://t.me/clxwzyy?text=${text}`, '_blank');
+
     btn.disabled = true;
     span.textContent = 'Заявка отправлена ✓';
     btn.style.background = '#2d6e4e';
