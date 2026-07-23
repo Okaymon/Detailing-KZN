@@ -162,7 +162,6 @@ function addReveal(selector, stagger = 0) {
 }
 
 addReveal('.service-item', 80);
-addReveal('.review-card', 80);
 addReveal('.stat-block', 100);
 
 // Section headers reveal
@@ -217,30 +216,44 @@ const reviewsTrack = document.getElementById('reviewsTrack');
 const rvPrev   = document.getElementById('rvPrev');
 const rvNext   = document.getElementById('rvNext');
 const rvDots   = document.querySelectorAll('.rv-dot');
+const reviewsRange = document.getElementById('reviewsRange');
 const reviewCards = document.querySelectorAll('.review-card');
 
 let currentReview = 0;
 const totalReviews = reviewCards.length;
 let reviewsPerView = getReviewsPerView();
+let maxReviewSlide = 0;
 
 function getReviewsPerView() {
   if (window.innerWidth < 640) return 1;
   if (window.innerWidth < 1024) return 2;
-  return 4;
+  return 3;
 }
 
 function updateReviewSlider() {
   reviewsPerView = getReviewsPerView();
-  const maxSlide = Math.max(0, totalReviews - reviewsPerView);
-  currentReview = Math.min(currentReview, maxSlide);
+  maxReviewSlide = Math.max(0, totalReviews - reviewsPerView);
+  currentReview = Math.min(currentReview, maxReviewSlide);
 
-  if (reviewsTrack) {
-    const cardWidth = reviewCards[0].offsetWidth + 20;
-    reviewsTrack.style.transform = `translateX(-${currentReview * cardWidth}px)`;
+  if (reviewsTrack && reviewCards.length) {
+    reviewsTrack.style.setProperty('--reviews-per-view', reviewsPerView);
+    const cardWidth = reviewCards[0].getBoundingClientRect().width;
+    const gap = parseFloat(getComputedStyle(reviewsTrack).gap) || 0;
+    reviewsTrack.style.transform = `translateX(-${currentReview * (cardWidth + gap)}px)`;
   }
 
-  // Update dots
-  rvDots.forEach((dot, i) => dot.classList.toggle('active', i === currentReview));
+  // Keep arrows, dots, and the range slider in sync.
+  if (reviewsRange) {
+    reviewsRange.max = maxReviewSlide;
+    reviewsRange.value = currentReview;
+    reviewsRange.disabled = maxReviewSlide === 0;
+    const progress = maxReviewSlide ? (currentReview / maxReviewSlide) * 100 : 0;
+    reviewsRange.style.setProperty('--range-progress', `${progress}%`);
+  }
+  rvDots.forEach((dot, i) => {
+    dot.hidden = i > maxReviewSlide;
+    dot.classList.toggle('active', i === currentReview);
+  });
 }
 
 if (rvPrev) rvPrev.addEventListener('click', () => {
@@ -249,8 +262,12 @@ if (rvPrev) rvPrev.addEventListener('click', () => {
 });
 
 if (rvNext) rvNext.addEventListener('click', () => {
-  const maxSlide = Math.max(0, totalReviews - getReviewsPerView());
-  currentReview = Math.min(maxSlide, currentReview + 1);
+  currentReview = Math.min(maxReviewSlide, currentReview + 1);
+  updateReviewSlider();
+});
+
+if (reviewsRange) reviewsRange.addEventListener('input', e => {
+  currentReview = Number(e.target.value);
   updateReviewSlider();
 });
 
@@ -271,6 +288,8 @@ window.addEventListener('resize', () => {
   reviewsPerView = getReviewsPerView();
   updateReviewSlider();
 }, { passive: true });
+
+updateReviewSlider();
 
 // ─── FLOATING CTA ───────────────────────────────
 const floatingCta = document.getElementById('floatingCta');

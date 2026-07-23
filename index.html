@@ -498,13 +498,14 @@
   </section>
 
   <!-- TESTIMONIALS -->
-  <section class="reviews-section">
+  <section class="reviews-section" id="reviews">
     <div class="reviews-header">
       <p class="eyebrow">Отзывы клиентов</p>
       <h2 class="section-title split-text">Что говорят<br/><em>о нас</em></h2>
     </div>
-    <div class="reviews-track" id="reviewsTrack">
-      <div class="review-card">
+    <div class="reviews-viewport">
+      <div class="reviews-track" id="reviewsTrack">
+        <div class="review-card">
         <div class="rc-stars">★★★★★</div>
         <blockquote>"Сдал Porsche Cayenne на полировку и керамику — результат превзошёл все ожидания. Машина выглядит лучше, чем из салона. Рекомендую всем без исключения!"</blockquote>
         <div class="rc-author">
@@ -514,8 +515,8 @@
             <span>Porsche Cayenne · Керамика Gyeon</span>
           </div>
         </div>
-      </div>
-      <div class="review-card">
+        </div>
+        <div class="review-card">
         <div class="rc-stars">★★★★★</div>
         <blockquote>"Обратился с Range Rover после суровой зимы. Химчистка и PPF на капот — работа выполнена идеально, в срок, всё объяснили и показали. Буду постоянным клиентом."</blockquote>
         <div class="rc-author">
@@ -525,8 +526,8 @@
             <span>Range Rover Sport · PPF + Химчистка</span>
           </div>
         </div>
-      </div>
-      <div class="review-card">
+        </div>
+        <div class="review-card">
         <div class="rc-stars">★★★★★</div>
         <blockquote>"Привезла BMW X7 с убитым кожаным салоном. После химчистки и кондиционирования Gyeon — как абсолютно новый автомобиль. Профессионалы высочайшего класса."</blockquote>
         <div class="rc-author">
@@ -536,8 +537,8 @@
             <span>BMW X7 · Химчистка + Кондиционирование</span>
           </div>
         </div>
-      </div>
-      <div class="review-card">
+        </div>
+        <div class="review-card">
         <div class="rc-stars">★★★★★</div>
         <blockquote>"Полный детейлинг G-Wagon. Ребята сделали то, что другие считали невозможным — машина блестит как новая. Отдельное спасибо за внимание к деталям."</blockquote>
         <div class="rc-author">
@@ -546,6 +547,7 @@
             <strong>Дмитрий С.</strong>
             <span>Mercedes G-Class · Комплексный детейлинг</span>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -559,6 +561,10 @@
         <div class="rv-dot"></div>
         <div class="rv-dot"></div>
       </div>
+      <label class="reviews-range">
+        <span class="sr-only">Листать отзывы</span>
+        <input type="range" id="reviewsRange" min="0" max="3" value="0" step="1" aria-label="Листать отзывы">
+      </label>
       <button class="rv-next" id="rvNext" data-cursor="link">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 10h10M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
