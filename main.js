@@ -115,17 +115,9 @@ function initHeroAnimation() {
   startSlideshow();
 }
 
-if (prevBtn) prevBtn.addEventListener('click', () => {
-  goToSlide(currentSlide - 1);
-  startSlideshow();
-});
+if (prevBtn) prevBtn.addEventListener('click', () => { goToSlide(currentSlide - 1); startSlideshow(); });
+if (nextBtn) nextBtn.addEventListener('click', () => { goToSlide(currentSlide + 1); startSlideshow(); });
 
-if (nextBtn) nextBtn.addEventListener('click', () => {
-  goToSlide(currentSlide + 1);
-  startSlideshow();
-});
-
-// Keyboard navigation
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft')  { goToSlide(currentSlide - 1); startSlideshow(); }
   if (e.key === 'ArrowRight') { goToSlide(currentSlide + 1); startSlideshow(); }
@@ -149,26 +141,25 @@ const revealObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.12 });
 
-// Observe process cards
 document.querySelectorAll('.process-card').forEach(el => revealObserver.observe(el));
 
-// Generic reveal-up
 function addReveal(selector, stagger = 0) {
   document.querySelectorAll(selector).forEach((el, i) => {
-    el.classList.add('reveal-up');
-    el.dataset.delay = i * stagger;
+    if (!el.classList.contains('reveal-up')) el.classList.add('reveal-up');
+    if (!el.dataset.delay) el.dataset.delay = i * stagger;
     revealObserver.observe(el);
   });
 }
 
 addReveal('.service-item', 80);
 addReveal('.stat-block', 100);
+addReveal('.pkg-card', 80);
+addReveal('.gc-card', 80);
 
-// Section headers reveal
 const headerObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) return;
-    entry.target.querySelectorAll('.eyebrow, .section-title, .sh-right > p, .about-lead, .about-content > p').forEach((el, i) => {
+    entry.target.querySelectorAll('.eyebrow, .section-title, .sh-right > p, .about-lead, .about-content > p, .ph-right > p, .guarantee-text, .cases-hint').forEach((el, i) => {
       el.classList.add('reveal-up');
       el.style.transitionDelay = (i * 0.1) + 's';
       setTimeout(() => el.classList.add('visible'), i * 100);
@@ -177,9 +168,9 @@ const headerObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.15 });
 
-document.querySelectorAll('.services-header, .gallery-header, .about-content, .process-header, .reviews-header, .contact-left').forEach(el => {
-  headerObserver.observe(el);
-});
+document.querySelectorAll(
+  '.services-header, .gallery-header, .about-content, .process-header, .reviews-header, .contact-left, .packages-header, .cases-header, .guarantee-left'
+).forEach(el => headerObserver.observe(el));
 
 // ─── STAT COUNTERS ──────────────────────────────
 let countersTriggered = false;
@@ -242,7 +233,6 @@ function updateReviewSlider() {
     reviewsTrack.style.transform = `translateX(-${currentReview * (cardWidth + gap)}px)`;
   }
 
-  // Keep arrows, dots, and the range slider in sync.
   if (reviewsRange) {
     reviewsRange.max = maxReviewSlide;
     reviewsRange.value = currentReview;
@@ -256,22 +246,10 @@ function updateReviewSlider() {
   });
 }
 
-if (rvPrev) rvPrev.addEventListener('click', () => {
-  currentReview = Math.max(0, currentReview - 1);
-  updateReviewSlider();
-});
+if (rvPrev) rvPrev.addEventListener('click', () => { currentReview = Math.max(0, currentReview - 1); updateReviewSlider(); });
+if (rvNext) rvNext.addEventListener('click', () => { currentReview = Math.min(maxReviewSlide, currentReview + 1); updateReviewSlider(); });
+if (reviewsRange) reviewsRange.addEventListener('input', e => { currentReview = Number(e.target.value); updateReviewSlider(); });
 
-if (rvNext) rvNext.addEventListener('click', () => {
-  currentReview = Math.min(maxReviewSlide, currentReview + 1);
-  updateReviewSlider();
-});
-
-if (reviewsRange) reviewsRange.addEventListener('input', e => {
-  currentReview = Number(e.target.value);
-  updateReviewSlider();
-});
-
-// Touch/swipe for reviews
 let touchStartX = 0;
 if (reviewsTrack) {
   reviewsTrack.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
@@ -284,11 +262,7 @@ if (reviewsTrack) {
   }, { passive: true });
 }
 
-window.addEventListener('resize', () => {
-  reviewsPerView = getReviewsPerView();
-  updateReviewSlider();
-}, { passive: true });
-
+window.addEventListener('resize', () => { reviewsPerView = getReviewsPerView(); updateReviewSlider(); }, { passive: true });
 updateReviewSlider();
 
 // ─── FLOATING CTA ───────────────────────────────
@@ -297,9 +271,7 @@ const heroSection  = document.getElementById('hero');
 
 const floatObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (floatingCta) {
-      floatingCta.classList.toggle('visible', !entry.isIntersecting);
-    }
+    if (floatingCta) floatingCta.classList.toggle('visible', !entry.isIntersecting);
   });
 }, { threshold: 0.1 });
 
@@ -349,9 +321,7 @@ document.querySelectorAll('.gm-item').forEach(item => {
     const y = ((e.clientY - rect.top)  / rect.height - 0.5) * 8;
     item.style.transform = `perspective(800px) rotateY(${x}deg) rotateX(${-y}deg) scale(1.02)`;
   });
-  item.addEventListener('mouseleave', () => {
-    item.style.transform = '';
-  });
+  item.addEventListener('mouseleave', () => { item.style.transform = ''; });
 });
 
 // ─── MODAL FORM ─────────────────────────────────
@@ -373,17 +343,14 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-// Open on all .js-modal links
 document.querySelectorAll('.js-modal').forEach(el => {
   el.addEventListener('click', e => { e.preventDefault(); openModal(); });
 });
 
-// Close on backdrop click / close button / Escape
 modalClose.addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-// Photo preview
 function renderPreviews() {
   mfPreview.innerHTML = '';
   uploadArea.classList.toggle('has-files', selectedFiles.length > 0);
@@ -410,43 +377,104 @@ mfPhotos.addEventListener('change', () => {
   renderPreviews();
 });
 
-// Submit via fetch → /submit
-modalForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  const btn  = document.getElementById('mfSubmit');
-  const span = btn.querySelector('span');
+async function submitToTelegram(fd, btn, spanEl, successHtml, resetFn) {
   btn.disabled = true;
-  span.textContent = 'Отправляем…';
-
-  const fd = new FormData();
-  fd.append('name',    document.getElementById('mfName').value.trim());
-  fd.append('tg_nick', document.getElementById('mfTg').value.trim());
-  fd.append('request', document.getElementById('mfRequest').value.trim());
-  selectedFiles.forEach(f => fd.append('photos', f));
-
+  spanEl.textContent = 'Отправляем…';
   try {
-    const res = await fetch('/submit', { method: 'POST', body: fd });
+    const res  = await fetch('/submit', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.ok) {
-      modalForm.innerHTML = `
-        <div class="mf-success">
-          <div class="mf-success-icon">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <h4>Заявка отправлена!</h4>
-          <p>Мы напишем вам в Telegram<br/>в ближайшее время.</p>
-        </div>`;
-      selectedFiles = [];
-      setTimeout(closeModal, 3000);
+      if (successHtml) btn.closest('form').innerHTML = successHtml;
+      if (resetFn) resetFn();
+      return true;
     } else {
       throw new Error(data.error || 'Ошибка сервера');
     }
   } catch (err) {
-    span.textContent = 'Ошибка — попробуйте ещё раз';
+    spanEl.textContent = 'Ошибка — попробуйте ещё раз';
     btn.disabled = false;
     console.error(err);
+    return false;
+  }
+}
+
+// Modal form submit
+modalForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn  = document.getElementById('mfSubmit');
+  const span = btn.querySelector('span');
+
+  const fd = new FormData();
+  fd.append('name',    document.getElementById('mfName').value.trim());
+  fd.append('phone',   document.getElementById('mfPhone').value.trim());
+  fd.append('request', document.getElementById('mfRequest').value.trim());
+  selectedFiles.forEach(f => fd.append('photos', f));
+
+  const successHtml = `
+    <div class="mf-success">
+      <div class="mf-success-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h4>Заявка отправлена!</h4>
+      <p>Мы перезвоним вам<br/>в течение 15 минут.</p>
+    </div>`;
+
+  const ok = await submitToTelegram(fd, btn, span, successHtml, null);
+  if (ok) {
+    selectedFiles = [];
+    setTimeout(closeModal, 3000);
   }
 });
+
+// ─── CONTACT FORM (section) ──────────────────────
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+  contactForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn  = document.getElementById('cfSubmit');
+    const span = btn.querySelector('span');
+
+    const name    = document.getElementById('cfName').value.trim();
+    const phone   = document.getElementById('cfPhone').value.trim();
+    const car     = document.getElementById('cfCar').value.trim();
+    const service = document.getElementById('cfService').value.trim();
+    const msg     = document.getElementById('cfMsg').value.trim();
+
+    const requestParts = [];
+    if (car)     requestParts.push(`Автомобиль: ${car}`);
+    if (service) requestParts.push(`Услуга: ${service}`);
+    if (msg)     requestParts.push(`Комментарий: ${msg}`);
+
+    const fd = new FormData();
+    fd.append('name',    name);
+    fd.append('phone',   phone);
+    fd.append('request', requestParts.join('\n'));
+
+    btn.disabled = true;
+    span.textContent = 'Отправляем…';
+
+    try {
+      const res  = await fetch('/submit', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        contactForm.innerHTML = `
+          <div class="cf-success">
+            <div class="cf-success-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h4>Заявка принята!</h4>
+            <p>Перезвоним в течение 15 минут.<br/>Пн–Сб: 9:00–20:00</p>
+          </div>`;
+      } else {
+        throw new Error(data.error || 'Ошибка');
+      }
+    } catch (err) {
+      span.textContent = 'Ошибка — попробуйте ещё раз';
+      btn.disabled = false;
+      console.error(err);
+    }
+  });
+}
 
 // ─── MAGNETIC BUTTONS ───────────────────────────
 function addMagnet(selector, strength = 0.35) {
@@ -457,9 +485,7 @@ function addMagnet(selector, strength = 0.35) {
       const y = (e.clientY - rect.top  - rect.height / 2) * strength;
       el.style.transform = `translate(${x}px, ${y}px)`;
     });
-    el.addEventListener('mouseleave', () => {
-      el.style.transform = '';
-    });
+    el.addEventListener('mouseleave', () => { el.style.transform = ''; });
   });
 }
 
@@ -491,33 +517,108 @@ gtabs.forEach(tab => {
 
 // ─── GENERATED GALLERY VIDEOS ────────────────────
 function initGalleryVideos() {
-  const items = document.querySelectorAll('.gv-item');
+  const items  = document.querySelectorAll('.gv-item');
   const videos = document.querySelectorAll('.gv-video');
 
-  videos.forEach(video => {
-    video.play().catch(() => {
-      // Autoplay can be blocked until the gallery receives a user gesture.
-    });
-  });
+  videos.forEach(video => { video.play().catch(() => {}); });
 
   items.forEach(item => {
     const overlay = item.querySelector('.gv-overlay');
-    const video = item.querySelector('.gv-video');
+    const video   = item.querySelector('.gv-video');
     if (!overlay || !video) return;
 
     overlay.addEventListener('click', () => {
-      videos.forEach(otherVideo => {
-        const otherItem = otherVideo.closest('.gv-item');
-        if (otherVideo === video) {
-          otherVideo.muted = false;
-          otherVideo.volume = 1;
+      videos.forEach(other => {
+        const otherItem = other.closest('.gv-item');
+        if (other === video) {
+          other.muted = false;
+          other.volume = 1;
           otherItem.classList.add('unmuted');
-          otherVideo.play().catch(() => {});
+          other.play().catch(() => {});
         } else {
-          otherVideo.muted = true;
+          other.muted = true;
           otherItem.classList.remove('unmuted');
         }
       });
     });
   });
 }
+
+// ─── BEFORE / AFTER SLIDERS ──────────────────────
+function initBASlider(sliderEl, afterEl, handleEl) {
+  if (!sliderEl || !afterEl || !handleEl) return;
+
+  let isDragging = false;
+  let pos = 50; // percentage
+
+  function setPos(pct) {
+    pos = Math.max(2, Math.min(98, pct));
+    afterEl.style.clipPath   = `inset(0 ${100 - pos}% 0 0)`;
+    handleEl.style.left      = pos + '%';
+  }
+
+  // Init at 50%
+  setPos(50);
+
+  function getPercent(clientX) {
+    const rect = sliderEl.getBoundingClientRect();
+    return ((clientX - rect.left) / rect.width) * 100;
+  }
+
+  // Mouse events
+  handleEl.addEventListener('mousedown', e => {
+    e.preventDefault();
+    isDragging = true;
+    sliderEl.classList.add('dragging');
+  });
+
+  sliderEl.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    setPos(getPercent(e.clientX));
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging) { isDragging = false; sliderEl.classList.remove('dragging'); }
+  });
+
+  // Touch events
+  handleEl.addEventListener('touchstart', e => {
+    e.preventDefault();
+    isDragging = true;
+    sliderEl.classList.add('dragging');
+  }, { passive: false });
+
+  sliderEl.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setPos(getPercent(e.touches[0].clientX));
+  }, { passive: false });
+
+  sliderEl.addEventListener('touchend', () => {
+    isDragging = false;
+    sliderEl.classList.remove('dragging');
+  });
+
+  // Click anywhere on slider
+  sliderEl.addEventListener('click', e => {
+    if (e.target === handleEl || handleEl.contains(e.target)) return;
+    setPos(getPercent(e.clientX));
+  });
+}
+
+// Init all 3 sliders
+initBASlider(
+  document.getElementById('ba0'),
+  document.getElementById('ba0-after'),
+  document.getElementById('ba0-handle')
+);
+initBASlider(
+  document.getElementById('ba1'),
+  document.getElementById('ba1-after'),
+  document.getElementById('ba1-handle')
+);
+initBASlider(
+  document.getElementById('ba2'),
+  document.getElementById('ba2-after'),
+  document.getElementById('ba2-handle')
+);

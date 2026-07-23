@@ -45,10 +45,10 @@ def tg_call(method, fields, files=None):
         return json.loads(r.read())
 
 
-def send_to_telegram(name, tg_nick, request_text, photos):
+def send_to_telegram(name, phone, request_text, photos):
     lines = ['📋 <b>Новая заявка — MS Detailing Carbon</b>', '']
     if name:         lines.append(f'👤 <b>Имя:</b> {name}')
-    if tg_nick:      lines.append(f'✈️ <b>Telegram:</b> {tg_nick}')
+    if phone:        lines.append(f'📞 <b>Телефон:</b> {phone}')
     if request_text: lines.append(f'💬 <b>Запрос:</b> {request_text}')
     text = '\n'.join(lines)
 
@@ -90,7 +90,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(length)
 
-        # Extract boundary
         boundary = None
         for part in content_type.split(';'):
             part = part.strip()
@@ -105,10 +104,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         delimiter = b'--' + boundary
         segments = body.split(delimiter)
 
-        for seg in segments[1:]:           # skip preamble
-            if seg.startswith(b'--'):      # epilogue
+        for seg in segments[1:]:
+            if seg.startswith(b'--'):
                 break
-            # Strip leading \r\n, find header/body split
             if seg.startswith(b'\r\n'):
                 seg = seg[2:]
             split = seg.find(b'\r\n\r\n')
@@ -119,7 +117,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if data.endswith(b'\r\n'):
                 data = data[:-2]
 
-            # Parse headers
             headers = {}
             for line in raw_headers.split(b'\r\n'):
                 if b':' in line:
@@ -144,30 +141,36 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         return fields, files
 
+    def _json_response(self, code, data):
+        body = json.dumps(data).encode()
+        self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_POST(self):
         if self.path != '/submit':
             self.send_response(404)
             self.end_headers()
             return
+
+        if not TG_TOKEN or not TG_CHAT:
+            self._json_response(503, {'ok': False, 'error': 'Telegram not configured'})
+            return
+
         try:
             fields, photos = self._parse_multipart()
             name         = fields.get('name',    '').strip()
-            tg_nick      = fields.get('tg_nick', '').strip()
+            # Accept phone from field 'phone' (section form) or 'tg_nick' (legacy modal)
+            phone        = fields.get('phone',   fields.get('tg_nick', '')).strip()
             request_text = fields.get('request', '').strip()
 
-            send_to_telegram(name, tg_nick, request_text, photos)
-
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'ok': True}).encode())
+            send_to_telegram(name, phone, request_text, photos)
+            self._json_response(200, {'ok': True})
 
         except Exception as e:
             print(f'[submit error] {e}')
-            self.send_response(500)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            self._json_response(500, {'ok': False, 'error': str(e)})
 
 
 socketserver.TCPServer.allow_reuse_address = True
