@@ -299,6 +299,12 @@
       <p class="eyebrow">Наши работы</p>
       <h2 class="section-title split-text">Галерея</h2>
     </div>
+    <div class="gallery-tabs">
+      <button class="gtab active" data-tab="photos">Фото</button>
+      <button class="gtab" data-tab="videos">Видео</button>
+    </div>
+
+    <div class="gallery-pane" id="gpPhotos">
     <div class="gallery-mosaic">
       <div class="gm-item gm-lg" data-cursor="zoom">
         <img src="assets/gwagon-front.jpg" alt="G-Wagon детейлинг"/>
@@ -345,6 +351,62 @@
         </div>
       </div>
     </div>
+    </div><!-- /gpPhotos -->
+
+    <div class="gallery-pane hidden" id="gpVideos">
+      <div class="gallery-videos">
+
+        <div class="gv-item" data-idx="0">
+          <div class="gv-ratio">
+            <div id="yt-player-0"></div>
+            <div class="gv-overlay">
+              <div class="gv-sound-pill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                <span>Нажмите для звука</span>
+              </div>
+            </div>
+          </div>
+          <div class="gv-meta">
+            <span class="gm-tag">30.1 млн просмотров · The Detail Geek</span>
+            <h4>Детейлинг за 18 часов</h4>
+          </div>
+        </div>
+
+        <div class="gv-item" data-idx="1">
+          <div class="gv-ratio">
+            <div id="yt-player-1"></div>
+            <div class="gv-overlay">
+              <div class="gv-sound-pill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                <span>Нажмите для звука</span>
+              </div>
+            </div>
+          </div>
+          <div class="gv-meta">
+            <span class="gm-tag">21.7 млн просмотров · AMMO NYC</span>
+            <h4>Mercedes 280 SL — 37 лет без мойки</h4>
+          </div>
+        </div>
+
+        <div class="gv-item" data-idx="2">
+          <div class="gv-ratio">
+            <div id="yt-player-2"></div>
+            <div class="gv-overlay">
+              <div class="gv-sound-pill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                <span>Нажмите для звука</span>
+              </div>
+            </div>
+          </div>
+          <div class="gv-meta">
+            <span class="gm-tag">15.2 млн просмотров · ChrisFix</span>
+            <h4>Полная химчистка салона</h4>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /gpVideos -->
+
   </section>
 
   <!-- ABOUT -->

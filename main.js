@@ -447,3 +447,72 @@ function addMagnet(selector, strength = 0.35) {
 addMagnet('.nav-cta', 0.25);
 addMagnet('.slide-prev, .slide-next, .rv-prev, .rv-next', 0.3);
 addMagnet('.floating-cta', 0.2);
+
+// ─── GALLERY TABS ────────────────────────────────
+const gtabs   = document.querySelectorAll('.gtab');
+const gpPhotos = document.getElementById('gpPhotos');
+const gpVideos = document.getElementById('gpVideos');
+let videosInited = false;
+
+gtabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    gtabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const which = tab.dataset.tab;
+    if (which === 'photos') {
+      gpPhotos.classList.remove('hidden');
+      gpVideos.classList.add('hidden');
+    } else {
+      gpPhotos.classList.add('hidden');
+      gpVideos.classList.remove('hidden');
+      if (!videosInited) { initYT(); videosInited = true; }
+    }
+  });
+});
+
+// ─── YOUTUBE IFRAME API ──────────────────────────
+const YT_IDS = ['zfWXbQ4okEc', 'UyTrkAqnkFI', 'tGnf8G8A8qU'];
+const ytPlayers = {};
+
+function initYT() {
+  if (window.YT && window.YT.Player) {
+    createPlayers();
+  } else {
+    window._ytReadyCb = createPlayers;
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  }
+}
+
+window.onYouTubeIframeAPIReady = function () {
+  if (window._ytReadyCb) window._ytReadyCb();
+};
+
+function createPlayers() {
+  YT_IDS.forEach((videoId, i) => {
+    ytPlayers[i] = new YT.Player(`yt-player-${i}`, {
+      videoId,
+      playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: videoId, playsinline: 1, rel: 0 },
+      events: { onReady: e => e.target.playVideo() }
+    });
+  });
+}
+
+// Click overlay → unmute this player, mute others
+document.querySelectorAll('.gv-item').forEach(item => {
+  item.querySelector('.gv-overlay').addEventListener('click', () => {
+    const idx = +item.dataset.idx;
+    document.querySelectorAll('.gv-item').forEach((el, i) => {
+      const p = ytPlayers[i];
+      if (!p) return;
+      if (i === idx) {
+        p.unMute(); p.setVolume(100);
+        el.classList.add('unmuted');
+      } else {
+        p.mute();
+        el.classList.remove('unmuted');
+      }
+    });
+  });
+});
