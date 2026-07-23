@@ -335,41 +335,99 @@ document.querySelectorAll('.gm-item').forEach(item => {
   });
 });
 
-// ─── CONTACT FORM ───────────────────────────────
-const form = document.getElementById('contactForm');
-if (form) {
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const btn  = form.querySelector('.cf-submit');
-    const span = btn.querySelector('span');
+// ─── MODAL FORM ─────────────────────────────────
+const modalOverlay = document.getElementById('modalOverlay');
+const modalClose   = document.getElementById('modalClose');
+const modalForm    = document.getElementById('modalForm');
+const mfPhotos     = document.getElementById('mfPhotos');
+const mfPreview    = document.getElementById('mfPreview');
+const uploadArea   = document.getElementById('uploadArea');
 
-    const name    = document.getElementById('cfName').value.trim();
-    const phone   = document.getElementById('cfPhone').value.trim();
-    const car     = document.getElementById('cfCar').value.trim();
-    const service = document.getElementById('cfService').value.trim();
-    const msg     = document.getElementById('cfMsg').value.trim();
+let selectedFiles = [];
 
-    const lines = ['📋 Новая заявка с сайта MS Detailing Carbon'];
-    if (name)    lines.push(`👤 Имя: ${name}`);
-    if (phone)   lines.push(`📞 Телефон: ${phone}`);
-    if (car)     lines.push(`🚗 Автомобиль: ${car}`);
-    if (service) lines.push(`🔧 Услуга: ${service}`);
-    if (msg)     lines.push(`💬 Комментарий: ${msg}`);
+function openModal() {
+  modalOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  modalOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
 
-    const text = encodeURIComponent(lines.join('\n'));
-    window.open(`https://t.me/clxwzyy?text=${text}`, '_blank');
+// Open on all .js-modal links
+document.querySelectorAll('.js-modal').forEach(el => {
+  el.addEventListener('click', e => { e.preventDefault(); openModal(); });
+});
 
-    btn.disabled = true;
-    span.textContent = 'Заявка отправлена ✓';
-    btn.style.background = '#2d6e4e';
-    setTimeout(() => {
-      btn.disabled = false;
-      span.textContent = 'Отправить заявку';
-      btn.style.background = '';
-      form.reset();
-    }, 4000);
+// Close on backdrop click / close button / Escape
+modalClose.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Photo preview
+function renderPreviews() {
+  mfPreview.innerHTML = '';
+  uploadArea.classList.toggle('has-files', selectedFiles.length > 0);
+  selectedFiles.forEach((file, i) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const wrap = document.createElement('div');
+      wrap.className = 'mf-preview-item';
+      wrap.innerHTML = `<img src="${ev.target.result}" alt="фото ${i+1}"/>
+        <button class="mf-remove" type="button" data-index="${i}">✕</button>`;
+      wrap.querySelector('.mf-remove').addEventListener('click', () => {
+        selectedFiles.splice(i, 1);
+        renderPreviews();
+      });
+      mfPreview.appendChild(wrap);
+    };
+    reader.readAsDataURL(file);
   });
 }
+
+mfPhotos.addEventListener('change', () => {
+  selectedFiles = [...selectedFiles, ...Array.from(mfPhotos.files)];
+  mfPhotos.value = '';
+  renderPreviews();
+});
+
+// Submit via fetch → /submit
+modalForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn  = document.getElementById('mfSubmit');
+  const span = btn.querySelector('span');
+  btn.disabled = true;
+  span.textContent = 'Отправляем…';
+
+  const fd = new FormData();
+  fd.append('name',    document.getElementById('mfName').value.trim());
+  fd.append('tg_nick', document.getElementById('mfTg').value.trim());
+  fd.append('request', document.getElementById('mfRequest').value.trim());
+  selectedFiles.forEach(f => fd.append('photos', f));
+
+  try {
+    const res = await fetch('/submit', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.ok) {
+      modalForm.innerHTML = `
+        <div class="mf-success">
+          <div class="mf-success-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h4>Заявка отправлена!</h4>
+          <p>Мы напишем вам в Telegram<br/>в ближайшее время.</p>
+        </div>`;
+      selectedFiles = [];
+      setTimeout(closeModal, 3000);
+    } else {
+      throw new Error(data.error || 'Ошибка сервера');
+    }
+  } catch (err) {
+    span.textContent = 'Ошибка — попробуйте ещё раз';
+    btn.disabled = false;
+    console.error(err);
+  }
+});
 
 // ─── MAGNETIC BUTTONS ───────────────────────────
 function addMagnet(selector, strength = 0.35) {

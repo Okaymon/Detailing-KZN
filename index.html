@@ -38,7 +38,7 @@
           <li><a href="#gallery" data-cursor="link">Галерея</a></li>
           <li><a href="#about" data-cursor="link">О нас</a></li>
         </ul>
-        <a href="#contact" class="nav-cta" data-cursor="link">
+        <a href="#" class="nav-cta js-modal" data-cursor="link">
           <span>Записаться</span>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
@@ -56,7 +56,7 @@
         <li><a href="#services" class="mm-link">Услуги</a></li>
         <li><a href="#gallery" class="mm-link">Галерея</a></li>
         <li><a href="#about" class="mm-link">О нас</a></li>
-        <li><a href="#contact" class="mm-link">Записаться</a></li>
+        <li><a href="#" class="mm-link js-modal">Записаться</a></li>
       </ul>
       <div class="mm-footer">
         <a href="tel:+79991576971">+7 (999) 157-69-71</a>
@@ -185,7 +185,7 @@
             <p>Машинная полировка до зеркального блеска. Удаляем царапины, голограммы и потёртости. Восстанавливаем глубину цвета лакокрасочного покрытия.</p>
             <div class="si-meta">
               <span class="si-price">от 8 000 ₽</span>
-              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+              <a href="#" class="si-btn js-modal" data-cursor="link">Записаться</a>
             </div>
           </div>
           <div class="si-img">
@@ -203,7 +203,7 @@
             <p>Нанокерамика Gyeon/XPEL обеспечивает защиту на 3–5 лет. Гидрофобный эффект, стойкость к UV, химии и царапинам. Блеск как с завода.</p>
             <div class="si-meta">
               <span class="si-price">от 25 000 ₽</span>
-              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+              <a href="#" class="si-btn js-modal" data-cursor="link">Записаться</a>
             </div>
           </div>
           <div class="si-img">
@@ -220,7 +220,7 @@
             <p>Прозрачная полиуретановая плёнка XPEL защищает от сколов, гравия, царапин и химических реагентов. Самовосстанавливающееся покрытие.</p>
             <div class="si-meta">
               <span class="si-price">от 40 000 ₽</span>
-              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+              <a href="#" class="si-btn js-modal" data-cursor="link">Записаться</a>
             </div>
           </div>
           <div class="si-img">
@@ -237,7 +237,7 @@
             <p>Глубокая очистка всех поверхностей: кожа, алькантара, ткань, пластик, потолок. Удаление стойких загрязнений, пятен и запахов. Озонирование.</p>
             <div class="si-meta">
               <span class="si-price">от 6 000 ₽</span>
-              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+              <a href="#" class="si-btn js-modal" data-cursor="link">Записаться</a>
             </div>
           </div>
           <div class="si-img">
@@ -254,7 +254,7 @@
             <p>Полный цикл обработки: мойка, глиняная очистка, полировка, керамика, химчистка салона, кондиционирование кожи, полировка дисков и стёкол.</p>
             <div class="si-meta">
               <span class="si-price">от 60 000 ₽</span>
-              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+              <a href="#" class="si-btn js-modal" data-cursor="link">Записаться</a>
             </div>
           </div>
           <div class="si-img">
@@ -399,7 +399,7 @@
         </div>
       </div>
 
-      <a href="#contact" class="btn-dark" data-cursor="link">
+      <a href="#" class="btn-dark js-modal" data-cursor="link">
         <span>Записаться на консультацию</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -616,10 +616,53 @@
   </footer>
 
   <!-- FLOATING CTA -->
-  <a href="#contact" class="floating-cta" id="floatingCta" data-cursor="link">
+  <a href="#" class="floating-cta js-modal" id="floatingCta" data-cursor="link">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1A19.5 19.5 0 013.1 10.7 19.8 19.8 0 01.1 2.1 2 2 0 012.1 0h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.4 2.1L6.1 7.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4 12.8 12.8 0 002.8.7 2 2 0 011.7 2z"/></svg>
     <span>Записаться</span>
   </a>
+
+  <!-- MODAL FORM -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Форма заявки">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Закрыть">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <div class="modal-header">
+        <p class="eyebrow">Оставить заявку</p>
+        <h3>Напишите нам</h3>
+      </div>
+      <form class="modal-form" id="modalForm">
+        <!-- Photo upload -->
+        <div class="mf-upload-area" id="uploadArea">
+          <input type="file" id="mfPhotos" name="photos" multiple accept="image/*" class="mf-file-input"/>
+          <div class="mf-upload-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <p class="mf-upload-text">Добавить фото автомобиля</p>
+          <p class="mf-upload-hint">JPG, PNG — можно несколько</p>
+          <div class="mf-preview" id="mfPreview"></div>
+        </div>
+        <!-- Fields -->
+        <div class="mf-group">
+          <input type="text" id="mfName" name="name" placeholder=" " required/>
+          <label for="mfName">Ваше имя</label>
+        </div>
+        <div class="mf-group">
+          <input type="text" id="mfTg" name="tg_nick" placeholder=" " required/>
+          <label for="mfTg">Ник в Telegram (@username)</label>
+        </div>
+        <div class="mf-group">
+          <textarea id="mfRequest" name="request" placeholder=" " rows="3" required></textarea>
+          <label for="mfRequest">Ваш запрос</label>
+        </div>
+        <button type="submit" class="mf-submit" id="mfSubmit">
+          <span>Отправить заявку</span>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M11 4l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <p class="mf-note">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>
+      </form>
+    </div>
+  </div>
 
   <script src="main.js"></script>
 </body>
