@@ -465,54 +465,40 @@ gtabs.forEach(tab => {
     } else {
       gpPhotos.classList.add('hidden');
       gpVideos.classList.remove('hidden');
-      if (!videosInited) { initYT(); videosInited = true; }
+      if (!videosInited) { initGalleryVideos(); videosInited = true; }
     }
   });
 });
 
-// ─── YOUTUBE IFRAME API ──────────────────────────
-const YT_IDS = ['zfWXbQ4okEc', 'UyTrkAqnkFI', 'tGnf8G8A8qU'];
-const ytPlayers = {};
+// ─── GENERATED GALLERY VIDEOS ────────────────────
+function initGalleryVideos() {
+  const items = document.querySelectorAll('.gv-item');
+  const videos = document.querySelectorAll('.gv-video');
 
-function initYT() {
-  if (window.YT && window.YT.Player) {
-    createPlayers();
-  } else {
-    window._ytReadyCb = createPlayers;
-    const s = document.createElement('script');
-    s.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(s);
-  }
-}
+  videos.forEach(video => {
+    video.play().catch(() => {
+      // Autoplay can be blocked until the gallery receives a user gesture.
+    });
+  });
 
-window.onYouTubeIframeAPIReady = function () {
-  if (window._ytReadyCb) window._ytReadyCb();
-};
+  items.forEach(item => {
+    const overlay = item.querySelector('.gv-overlay');
+    const video = item.querySelector('.gv-video');
+    if (!overlay || !video) return;
 
-function createPlayers() {
-  YT_IDS.forEach((videoId, i) => {
-    ytPlayers[i] = new YT.Player(`yt-player-${i}`, {
-      videoId,
-      playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: videoId, playsinline: 1, rel: 0 },
-      events: { onReady: e => e.target.playVideo() }
+    overlay.addEventListener('click', () => {
+      videos.forEach(otherVideo => {
+        const otherItem = otherVideo.closest('.gv-item');
+        if (otherVideo === video) {
+          otherVideo.muted = false;
+          otherVideo.volume = 1;
+          otherItem.classList.add('unmuted');
+          otherVideo.play().catch(() => {});
+        } else {
+          otherVideo.muted = true;
+          otherItem.classList.remove('unmuted');
+        }
+      });
     });
   });
 }
-
-// Click overlay → unmute this player, mute others
-document.querySelectorAll('.gv-item').forEach(item => {
-  item.querySelector('.gv-overlay').addEventListener('click', () => {
-    const idx = +item.dataset.idx;
-    document.querySelectorAll('.gv-item').forEach((el, i) => {
-      const p = ytPlayers[i];
-      if (!p) return;
-      if (i === idx) {
-        p.unMute(); p.setVolume(100);
-        el.classList.add('unmuted');
-      } else {
-        p.mute();
-        el.classList.remove('unmuted');
-      }
-    });
-  });
-});
