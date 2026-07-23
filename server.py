@@ -41,7 +41,7 @@ def tg_call(method, fields, files=None):
         data=body,
         headers={'Content-Type': ctype}
     )
-    with urllib.request.urlopen(req, timeout=15) as r:
+    with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read())
 
 
@@ -85,27 +85,63 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def _parse_multipart(self):
-        """Parse multipart/form-data using email module (cgi removed in 3.13)."""
+        """Parse multipart/form-data manually (cgi module removed in Python 3.13)."""
         content_type = self.headers.get('Content-Type', '')
         length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(length)
-        # email.parser needs a proper MIME message
-        msg_bytes = b'Content-Type: ' + content_type.encode() + b'\r\n\r\n' + body
-        msg = email.parser.BytesParser(policy=email.policy.compat32).parsebytes(msg_bytes)
+
+        # Extract boundary
+        boundary = None
+        for part in content_type.split(';'):
+            part = part.strip()
+            if part.startswith('boundary='):
+                boundary = part[9:].strip('"').encode()
+                break
+        if not boundary:
+            return {}, []
+
         fields = {}
         files  = []
-        if msg.is_multipart():
-            for part in msg.get_payload():
-                disp   = part.get('Content-Disposition', '')
-                params = dict(p.strip().split('=', 1) for p in disp.split(';')[1:] if '=' in p)
-                fname_field = params.get('name', '').strip('"')
-                filename    = params.get('filename', '').strip('"')
-                data = part.get_payload(decode=True)
-                if filename:
-                    mime = part.get_content_type() or 'image/jpeg'
-                    files.append((filename, data, mime))
-                else:
-                    fields[fname_field] = (data or b'').decode('utf-8', errors='replace')
+        delimiter = b'--' + boundary
+        segments = body.split(delimiter)
+
+        for seg in segments[1:]:           # skip preamble
+            if seg.startswith(b'--'):      # epilogue
+                break
+            # Strip leading \r\n, find header/body split
+            if seg.startswith(b'\r\n'):
+                seg = seg[2:]
+            split = seg.find(b'\r\n\r\n')
+            if split == -1:
+                continue
+            raw_headers = seg[:split]
+            data = seg[split + 4:]
+            if data.endswith(b'\r\n'):
+                data = data[:-2]
+
+            # Parse headers
+            headers = {}
+            for line in raw_headers.split(b'\r\n'):
+                if b':' in line:
+                    k, v = line.split(b':', 1)
+                    headers[k.strip().lower().decode()] = v.strip().decode()
+
+            disp = headers.get('content-disposition', '')
+            params = {}
+            for p in disp.split(';')[1:]:
+                p = p.strip()
+                if '=' in p:
+                    k, v = p.split('=', 1)
+                    params[k.strip()] = v.strip('"')
+
+            field_name = params.get('name', '')
+            filename   = params.get('filename', '')
+            if filename:
+                mime = headers.get('content-type', 'image/jpeg')
+                files.append((filename, data, mime))
+            else:
+                fields[field_name] = data.decode('utf-8', errors='replace')
+
         return fields, files
 
     def do_POST(self):
