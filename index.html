@@ -3,440 +3,624 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MS Detailing — Профессиональный детейлинг</title>
+  <title>MS Detailing — Профессиональный детейлинг премиум-класса</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+  <!-- CUSTOM CURSOR -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="loader-inner">
+      <div class="loader-logo">MS</div>
+      <div class="loader-line"><span></span></div>
+    </div>
+  </div>
 
   <!-- NAVIGATION -->
   <nav class="nav" id="nav">
     <div class="nav-inner">
-      <a href="#" class="nav-logo">
-        <img src="assets/logo-icon.png" alt="MS" class="nav-logo-img" />
-        <span class="nav-logo-text">MS <em>Detailing</em></span>
+      <a href="#" class="nav-logo" data-cursor="link">
+        <span class="nav-logo-ms">MS</span>
+        <span class="nav-logo-det">Detailing</span>
       </a>
-      <ul class="nav-links">
-        <li><a href="#services">Услуги</a></li>
-        <li><a href="#gallery">Галерея</a></li>
-        <li><a href="#about">О нас</a></li>
-        <li><a href="#contact" class="nav-cta">Записаться</a></li>
-      </ul>
-      <button class="nav-burger" id="burger" aria-label="Меню">
-        <span></span><span></span><span></span>
-      </button>
+      <div class="nav-center">
+        <a href="tel:+79000000000" class="nav-phone" data-cursor="link">+7 (900) 000-00-00</a>
+      </div>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="#services" data-cursor="link">Услуги</a></li>
+          <li><a href="#gallery" data-cursor="link">Галерея</a></li>
+          <li><a href="#about" data-cursor="link">О нас</a></li>
+        </ul>
+        <a href="#contact" class="nav-cta" data-cursor="link">
+          <span>Записаться</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <button class="nav-burger" id="burger" aria-label="Меню">
+          <span></span><span></span>
+        </button>
+      </div>
     </div>
   </nav>
 
   <!-- MOBILE MENU -->
   <div class="mobile-menu" id="mobileMenu">
-    <ul>
-      <li><a href="#services" class="mm-link">Услуги</a></li>
-      <li><a href="#gallery" class="mm-link">Галерея</a></li>
-      <li><a href="#about" class="mm-link">О нас</a></li>
-      <li><a href="#contact" class="mm-link">Записаться</a></li>
-    </ul>
+    <div class="mm-inner">
+      <ul>
+        <li><a href="#services" class="mm-link">Услуги</a></li>
+        <li><a href="#gallery" class="mm-link">Галерея</a></li>
+        <li><a href="#about" class="mm-link">О нас</a></li>
+        <li><a href="#contact" class="mm-link">Записаться</a></li>
+      </ul>
+      <div class="mm-footer">
+        <a href="tel:+79000000000">+7 (900) 000-00-00</a>
+        <p>Пн–Сб: 9:00–20:00</p>
+      </div>
+    </div>
   </div>
 
   <!-- HERO -->
   <section class="hero" id="hero">
-    <div class="hero-cinema" id="heroCinema">
-      <!-- Canvas animation overlaid on images -->
-      <div class="hero-slides" id="heroSlides">
-        <div class="slide slide-1 active" style="background-image:url('assets/gwagon-body.jpg')"></div>
-        <div class="slide slide-2" style="background-image:url('assets/gwagon-front.jpg')"></div>
-        <div class="slide slide-3" style="background-image:url('assets/gwagon-door-open.jpg')"></div>
-        <div class="slide slide-4" style="background-image:url('assets/gwagon-interior.jpg')"></div>
+    <!-- Slides -->
+    <div class="hero-track" id="heroTrack">
+      <div class="hero-slide active" data-index="0">
+        <div class="slide-bg" style="background-image:url('assets/studio-wide.jpg')"></div>
+        <div class="slide-overlay"></div>
       </div>
-
-      <!-- Shine overlay canvas -->
-      <canvas class="shine-canvas" id="shineCanvas"></canvas>
-
-      <!-- Lens flare -->
-      <div class="lens-flare" id="lensFlare"></div>
-
-      <!-- Cinematic bars -->
-      <div class="cinema-bar cinema-bar-top"></div>
-      <div class="cinema-bar cinema-bar-bottom"></div>
-
-      <!-- Vignette -->
-      <div class="hero-vignette"></div>
+      <div class="hero-slide" data-index="1">
+        <div class="slide-bg" style="background-image:url('assets/gwagon-front.jpg')"></div>
+        <div class="slide-overlay"></div>
+      </div>
+      <div class="hero-slide" data-index="2">
+        <div class="slide-bg" style="background-image:url('assets/gwagon-body.jpg')"></div>
+        <div class="slide-overlay"></div>
+      </div>
+      <div class="hero-slide" data-index="3">
+        <div class="slide-bg" style="background-image:url('assets/gwagon-interior.jpg')"></div>
+        <div class="slide-overlay"></div>
+      </div>
     </div>
+
+    <!-- Grain overlay -->
+    <div class="hero-grain"></div>
 
     <!-- Hero content -->
     <div class="hero-content">
-      <p class="hero-eyebrow reveal">Профессиональный детейлинг</p>
-      <h1 class="hero-title reveal">
-        Ваш автомобиль<br/>заслуживает<br/><em>совершенства</em>
+      <div class="hero-tag">
+        <div class="tag-dot"></div>
+        <span>Профессиональный детейлинг</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="title-line"><span class="title-word">Детейлинг</span></span>
+        <span class="title-line"><span class="title-word italic">высшего</span></span>
+        <span class="title-line"><span class="title-word">класса</span></span>
       </h1>
-      <p class="hero-sub reveal">Мы возвращаем автомобилям первозданный блеск.<br/>Каждая деталь — произведение искусства.</p>
-      <div class="hero-btns reveal">
-        <a href="#contact" class="btn btn-primary">Записаться на детейлинг</a>
-        <a href="#services" class="btn btn-ghost">Наши услуги</a>
+      <div class="hero-bottom">
+        <p class="hero-desc">Возвращаем автомобилям первозданный блеск.<br/>Каждая деталь — произведение искусства.</p>
+        <a href="#services" class="hero-cta" data-cursor="link">
+          <span>Выбрать услугу</span>
+          <div class="cta-arrow">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
       </div>
     </div>
 
-    <!-- Camera indicator -->
-    <div class="cam-indicator">
-      <div class="cam-dot"></div>
-      <span>LIVE PREVIEW</span>
+    <!-- Slide controls -->
+    <div class="hero-controls">
+      <button class="slide-prev" id="slidePrev" data-cursor="link" aria-label="Назад">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14 10H4M8 5 3 10l5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="slide-counter">
+        <span class="slide-current" id="slideCurrentNum">1</span>
+        <span class="slide-sep">/</span>
+        <span class="slide-total">4</span>
+      </div>
+      <button class="slide-next" id="slideNext" data-cursor="link" aria-label="Вперёд">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 10h10M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="hero-progress">
+      <div class="hero-progress-bar" id="heroProgressBar"></div>
     </div>
 
     <!-- Scroll hint -->
-    <div class="scroll-hint">
-      <div class="scroll-line"></div>
-      <span>Прокрутите вниз</span>
-    </div>
-  </section>
-
-  <!-- STATS BAR -->
-  <section class="stats-bar">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-num" data-target="1200">0</span><span class="stat-suf">+</span>
-          <p>Автомобилей обработано</p>
-        </div>
-        <div class="stat-item">
-          <span class="stat-num" data-target="7">0</span><span class="stat-suf"></span>
-          <p>Лет опыта</p>
-        </div>
-        <div class="stat-item">
-          <span class="stat-num" data-target="98">0</span><span class="stat-suf">%</span>
-          <p>Довольных клиентов</p>
-        </div>
-        <div class="stat-item">
-          <span class="stat-num" data-target="24">0</span><span class="stat-suf">/7</span>
-          <p>Поддержка и запись</p>
-        </div>
+    <div class="hero-scroll">
+      <div class="scroll-mouse">
+        <div class="scroll-wheel"></div>
       </div>
     </div>
   </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <div class="marquee-inner">
+        <span>Полировка кузова</span><span class="marquee-dot">✦</span>
+        <span>Керамическое покрытие</span><span class="marquee-dot">✦</span>
+        <span>PPF бронирование</span><span class="marquee-dot">✦</span>
+        <span>Химчистка салона</span><span class="marquee-dot">✦</span>
+        <span>Тонировка стёкол</span><span class="marquee-dot">✦</span>
+        <span>Восстановление фар</span><span class="marquee-dot">✦</span>
+        <span>Детейлинг двигателя</span><span class="marquee-dot">✦</span>
+        <span>Полировка кузова</span><span class="marquee-dot">✦</span>
+        <span>Керамическое покрытие</span><span class="marquee-dot">✦</span>
+        <span>PPF бронирование</span><span class="marquee-dot">✦</span>
+        <span>Химчистка салона</span><span class="marquee-dot">✦</span>
+        <span>Тонировка стёкол</span><span class="marquee-dot">✦</span>
+        <span>Восстановление фар</span><span class="marquee-dot">✦</span>
+        <span>Детейлинг двигателя</span><span class="marquee-dot">✦</span>
+      </div>
+    </div>
+  </div>
 
   <!-- SERVICES -->
   <section class="services" id="services">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">Что мы делаем</p>
-        <h2 class="section-title">Наши услуги</h2>
+    <div class="services-header">
+      <div class="sh-left">
+        <p class="eyebrow">Наши услуги</p>
+        <h2 class="section-title split-text">Что мы<br/><em>делаем</em></h2>
       </div>
-      <div class="services-grid">
-        <div class="service-card" data-delay="0">
-          <div class="service-icon">
-            <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.5"/><path d="M16 24c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="24" cy="24" r="3" fill="currentColor"/></svg>
+      <div class="sh-right">
+        <p>Профессиональный уход за автомобилями премиум-класса. Используем только сертифицированные материалы мировых брендов.</p>
+        <a href="#contact" class="text-link" data-cursor="link">Все услуги и цены →</a>
+      </div>
+    </div>
+
+    <div class="services-list">
+
+      <div class="service-item" data-cursor="drag">
+        <div class="si-num">01</div>
+        <div class="si-body">
+          <div class="si-text">
+            <h3>Полировка кузова</h3>
+            <p>Машинная полировка до зеркального блеска. Удаляем царапины, голограммы и потёртости. Восстанавливаем глубину цвета лакокрасочного покрытия.</p>
+            <div class="si-meta">
+              <span class="si-price">от 8 000 ₽</span>
+              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+            </div>
           </div>
-          <h3>Полировка кузова</h3>
-          <p>Машинная полировка до зеркального блеска. Удаляем царапины, голограммы и потёртости. Восстанавливаем глубину цвета.</p>
-          <div class="service-price">от 8 000 ₽</div>
-          <a href="#contact" class="service-link">Подробнее →</a>
-        </div>
-        <div class="service-card featured" data-delay="100">
-          <div class="service-badge">Популярное</div>
-          <div class="service-icon">
-            <svg viewBox="0 0 48 48" fill="none"><path d="M24 8l3 9h9l-7 5 3 9-8-6-8 6 3-9-7-5h9l3-9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <div class="si-img">
+            <img src="assets/polishing.jpg" alt="Полировка кузова" loading="lazy"/>
           </div>
-          <h3>Керамическое покрытие</h3>
-          <p>Нанокерамика обеспечивает защиту на 3–5 лет. Гидрофобный эффект, стойкость к химии, блеск как с завода.</p>
-          <div class="service-price">от 25 000 ₽</div>
-          <a href="#contact" class="service-link">Подробнее →</a>
-        </div>
-        <div class="service-card" data-delay="200">
-          <div class="service-icon">
-            <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="16" width="32" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M16 16V12a8 8 0 0116 0v4" stroke="currentColor" stroke-width="1.5"/></svg>
-          </div>
-          <h3>Бронирование плёнкой (PPF)</h3>
-          <p>Прозрачная полиуретановая плёнка защищает от сколов, гравия и царапин. Невидимый щит для кузова.</p>
-          <div class="service-price">от 40 000 ₽</div>
-          <a href="#contact" class="service-link">Подробнее →</a>
-        </div>
-        <div class="service-card" data-delay="300">
-          <div class="service-icon">
-            <svg viewBox="0 0 48 48" fill="none"><path d="M12 36V20l12-8 12 8v16" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="20" y="28" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
-          </div>
-          <h3>Химчистка салона</h3>
-          <p>Глубокая очистка всех поверхностей: кожа, ткань, пластик. Удаление стойких загрязнений и запахов. Дезинфекция.</p>
-          <div class="service-price">от 6 000 ₽</div>
-          <a href="#contact" class="service-link">Подробнее →</a>
-        </div>
-        <div class="service-card" data-delay="400">
-          <div class="service-icon">
-            <svg viewBox="0 0 48 48" fill="none"><path d="M24 12v4M24 32v4M12 24h4M32 24h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="1.5"/></svg>
-          </div>
-          <h3>Восстановление фар</h3>
-          <p>Полировка и запечатывание фар. Восстанавливаем прозрачность, убираем желтизну и мутность.</p>
-          <div class="service-price">от 3 000 ₽</div>
-          <a href="#contact" class="service-link">Подробнее →</a>
-        </div>
-        <div class="service-card" data-delay="500">
-          <div class="service-icon">
-            <svg viewBox="0 0 48 48" fill="none"><path d="M8 24h32M20 12l-12 12 12 12M28 12l12 12-12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <h3>Комплексная обработка</h3>
-          <p>Полный цикл детейлинга: мойка, полировка, кузов, салон, стёкла, диски. Автомобиль как из салона.</p>
-          <div class="service-price">от 60 000 ₽</div>
-          <a href="#contact" class="service-link">Подробнее →</a>
         </div>
       </div>
+
+      <div class="service-item featured-service" data-cursor="drag">
+        <div class="si-num">02</div>
+        <div class="si-body">
+          <div class="si-text">
+            <div class="si-badge">Популярно</div>
+            <h3>Керамическое покрытие</h3>
+            <p>Нанокерамика Gyeon/XPEL обеспечивает защиту на 3–5 лет. Гидрофобный эффект, стойкость к UV, химии и царапинам. Блеск как с завода.</p>
+            <div class="si-meta">
+              <span class="si-price">от 25 000 ₽</span>
+              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+            </div>
+          </div>
+          <div class="si-img">
+            <img src="assets/ceramic-apply.jpg" alt="Керамическое покрытие" loading="lazy"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-item" data-cursor="drag">
+        <div class="si-num">03</div>
+        <div class="si-body">
+          <div class="si-text">
+            <h3>Бронирование PPF</h3>
+            <p>Прозрачная полиуретановая плёнка XPEL защищает от сколов, гравия, царапин и химических реагентов. Самовосстанавливающееся покрытие.</p>
+            <div class="si-meta">
+              <span class="si-price">от 40 000 ₽</span>
+              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+            </div>
+          </div>
+          <div class="si-img">
+            <img src="assets/ppf-apply.jpg" alt="PPF бронирование" loading="lazy"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-item" data-cursor="drag">
+        <div class="si-num">04</div>
+        <div class="si-body">
+          <div class="si-text">
+            <h3>Химчистка салона</h3>
+            <p>Глубокая очистка всех поверхностей: кожа, алькантара, ткань, пластик, потолок. Удаление стойких загрязнений, пятен и запахов. Озонирование.</p>
+            <div class="si-meta">
+              <span class="si-price">от 6 000 ₽</span>
+              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+            </div>
+          </div>
+          <div class="si-img">
+            <img src="assets/gwagon-interior.jpg" alt="Химчистка салона" loading="lazy"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-item" data-cursor="drag">
+        <div class="si-num">05</div>
+        <div class="si-body">
+          <div class="si-text">
+            <h3>Комплексный детейлинг</h3>
+            <p>Полный цикл обработки: мойка, глиняная очистка, полировка, керамика, химчистка салона, кондиционирование кожи, полировка дисков и стёкол.</p>
+            <div class="si-meta">
+              <span class="si-price">от 60 000 ₽</span>
+              <a href="#contact" class="si-btn" data-cursor="link">Записаться</a>
+            </div>
+          </div>
+          <div class="si-img">
+            <img src="assets/gwagon-front.jpg" alt="Комплексный детейлинг" loading="lazy"/>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section class="process">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">Как мы работаем</p>
-        <h2 class="section-title">Процесс детейлинга</h2>
+  <!-- STATS -->
+  <section class="stats-section">
+    <div class="stats-bg" style="background-image:url('assets/studio-wide.jpg')"></div>
+    <div class="stats-overlay"></div>
+    <div class="stats-content">
+      <div class="stat-block">
+        <div class="stat-value"><span class="stat-num" data-target="1200">0</span><sup>+</sup></div>
+        <p>Автомобилей обработано</p>
       </div>
-      <div class="process-steps">
-        <div class="process-step">
-          <div class="step-num">01</div>
-          <h3>Осмотр и диагностика</h3>
-          <p>Фиксируем состояние кузова, выявляем дефекты, обсуждаем ваши цели.</p>
-        </div>
-        <div class="process-arrow">→</div>
-        <div class="process-step">
-          <div class="step-num">02</div>
-          <h3>Подготовка</h3>
-          <p>Глубокая мойка, обезжиривание, удаление загрязнений и остатков битума.</p>
-        </div>
-        <div class="process-arrow">→</div>
-        <div class="process-step">
-          <div class="step-num">03</div>
-          <h3>Обработка</h3>
-          <p>Полировка, нанесение защитных покрытий, детальная проработка каждого элемента.</p>
-        </div>
-        <div class="process-arrow">→</div>
-        <div class="process-step">
-          <div class="step-num">04</div>
-          <h3>Финальная инспекция</h3>
-          <p>Тщательная проверка результата, финальная полировка, передача автомобиля с отчётом.</p>
-        </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <div class="stat-value"><span class="stat-num" data-target="7">0</span></div>
+        <p>Лет на рынке</p>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <div class="stat-value"><span class="stat-num" data-target="98">0</span><sup>%</sup></div>
+        <p>Довольных клиентов</p>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <div class="stat-value"><span class="stat-num" data-target="15">0</span></div>
+        <p>Мастеров в команде</p>
       </div>
     </div>
   </section>
 
   <!-- GALLERY -->
-  <section class="gallery" id="gallery">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">Наши работы</p>
-        <h2 class="section-title">Галерея</h2>
-      </div>
+  <section class="gallery-section" id="gallery">
+    <div class="gallery-header">
+      <p class="eyebrow">Наши работы</p>
+      <h2 class="section-title split-text">Галерея</h2>
     </div>
-    <div class="gallery-grid">
-      <div class="gallery-item gi-1">
-        <img src="assets/gwagon-front.jpg" alt="G-Wagon детейлинг" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span>Mercedes G-Wagon · Полировка + Керамика</span>
+    <div class="gallery-mosaic">
+      <div class="gm-item gm-lg" data-cursor="zoom">
+        <img src="assets/gwagon-front.jpg" alt="G-Wagon детейлинг"/>
+        <div class="gm-info">
+          <span class="gm-tag">Полировка + Керамика</span>
+          <h4>Mercedes G-Wagon</h4>
         </div>
       </div>
-      <div class="gallery-item gi-2">
-        <img src="assets/gwagon-body.jpg" alt="Детейлинг кузова" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span>Кузовная полировка · Зеркальный блеск</span>
+      <div class="gm-col">
+        <div class="gm-item gm-sm" data-cursor="zoom">
+          <img src="assets/ceramic-apply.jpg" alt="Нанесение керамики"/>
+          <div class="gm-info">
+            <span class="gm-tag">Керамическое покрытие</span>
+            <h4>Нанесение Gyeon</h4>
+          </div>
+        </div>
+        <div class="gm-item gm-sm" data-cursor="zoom">
+          <img src="assets/polishing.jpg" alt="Полировка"/>
+          <div class="gm-info">
+            <span class="gm-tag">Полировка кузова</span>
+            <h4>Зеркальный блеск</h4>
+          </div>
         </div>
       </div>
-      <div class="gallery-item gi-3">
-        <img src="assets/gwagon-interior.jpg" alt="Салон детейлинг" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span>Химчистка и реставрация кожи</span>
+      <div class="gm-item gm-med" data-cursor="zoom">
+        <img src="assets/gwagon-interior.jpg" alt="Салон кожа"/>
+        <div class="gm-info">
+          <span class="gm-tag">Химчистка салона</span>
+          <h4>Кожа Cognac</h4>
         </div>
       </div>
-      <div class="gallery-item gi-4">
-        <img src="assets/gwagon-door-open.jpg" alt="Детейлинг двери" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span>Полный комплекс детейлинга</span>
+      <div class="gm-item gm-wide" data-cursor="zoom">
+        <img src="assets/gwagon-body.jpg" alt="Кузов G-Wagon"/>
+        <div class="gm-info">
+          <span class="gm-tag">Детейлинг кузова</span>
+          <h4>G-Wagon Emerald</h4>
+        </div>
+      </div>
+      <div class="gm-item gm-tall" data-cursor="zoom">
+        <img src="assets/ppf-apply.jpg" alt="PPF плёнка"/>
+        <div class="gm-info">
+          <span class="gm-tag">PPF защита</span>
+          <h4>Бронирование XPEL</h4>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ABOUT -->
-  <section class="about" id="about">
-    <div class="container">
-      <div class="about-grid">
-        <div class="about-visual">
-          <div class="about-img-wrap">
-            <img src="assets/gwagon-body.jpg" alt="MS Detailing мастерская" />
-            <div class="about-badge">
-              <span class="badge-num">7</span>
-              <span class="badge-text">лет совершенства</span>
-            </div>
+  <section class="about-section" id="about">
+    <div class="about-visual">
+      <div class="about-img-stack">
+        <img class="about-img-main" src="assets/studio-wide.jpg" alt="MS Detailing студия"/>
+        <img class="about-img-float" src="assets/gwagon-door-open.jpg" alt="Результат работы"/>
+      </div>
+    </div>
+    <div class="about-content">
+      <p class="eyebrow">О студии</p>
+      <h2 class="section-title split-text">MS Detailing<br/><em>— это страсть</em></h2>
+      <p class="about-lead">Мы превращаем уход за автомобилем в настоящее искусство. Семь лет безупречной репутации.</p>
+      <p>Каждый мастер прошёл сертификацию Gyeon, XPEL и Koch-Chemie. Работаем исключительно с премиум-сегментом: Porsche, Mercedes, BMW, Lamborghini, Rolls-Royce.</p>
+
+      <div class="about-specs">
+        <div class="spec-item">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 2l3 6.3 7 1-5 4.9 1.2 7-6.2-3.3L5.8 21 7 14l-5-4.9 7-1z"/></svg>
+          </div>
+          <div>
+            <strong>Гарантия качества</strong>
+            <span>На все виды работ</span>
           </div>
         </div>
-        <div class="about-content">
-          <p class="section-eyebrow">О студии</p>
-          <h2 class="section-title">MS Detailing — это страсть к автомобилям</h2>
-          <p>Мы — команда профессионалов, которые превращают уход за автомобилем в настоящее искусство. Каждый мастер прошёл сертификацию и имеет многолетний опыт работы с автомобилями любого класса.</p>
-          <p>Используем только профессиональные материалы: Gyeon, Koch-Chemie, XPEL, Meguiar's. Наша студия оснащена современным оборудованием для достижения идеального результата.</p>
-          <ul class="about-features">
-            <li>
-              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 011.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z"/></svg>
-              Гарантия на все виды работ
-            </li>
-            <li>
-              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 011.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z"/></svg>
-              Работаем с премиум-сегментом
-            </li>
-            <li>
-              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 011.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z"/></svg>
-              Профессиональные материалы Gyeon, Koch-Chemie
-            </li>
-            <li>
-              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 011.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z"/></svg>
-              Фотоотчёт до и после
-            </li>
-          </ul>
-          <a href="#contact" class="btn btn-primary">Записаться</a>
+        <div class="spec-item">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <strong>Фотоотчёт</strong>
+            <span>До и после работы</span>
+          </div>
         </div>
+        <div class="spec-item">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9 12l2 2 4-4M7.8 4.3A9 9 0 1019.7 16.2"/></svg>
+          </div>
+          <div>
+            <strong>Сертифицированные</strong>
+            <span>Gyeon, XPEL, Koch-Chemie</span>
+          </div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          </div>
+          <div>
+            <strong>Собственная студия</strong>
+            <span>600 м² оснащённого пространства</span>
+          </div>
+        </div>
+      </div>
+
+      <a href="#contact" class="btn-dark" data-cursor="link">
+        <span>Записаться на консультацию</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process-section">
+    <div class="process-header">
+      <p class="eyebrow">Как мы работаем</p>
+      <h2 class="section-title split-text">Процесс<br/><em>детейлинга</em></h2>
+    </div>
+    <div class="process-grid">
+      <div class="process-card" data-delay="0">
+        <div class="pc-num">01</div>
+        <div class="pc-line"></div>
+        <h3>Осмотр и оценка</h3>
+        <p>Детальная диагностика кузова под специальным светом. Фиксируем все дефекты, составляем план работ и смету.</p>
+      </div>
+      <div class="process-card" data-delay="100">
+        <div class="pc-num">02</div>
+        <div class="pc-line"></div>
+        <h3>Подготовка</h3>
+        <p>Бесконтактная мойка, удаление битумных пятен, очистка глиной, обезжиривание поверхностей.</p>
+      </div>
+      <div class="process-card" data-delay="200">
+        <div class="pc-num">03</div>
+        <div class="pc-line"></div>
+        <h3>Обработка</h3>
+        <p>Машинная полировка, нанесение защитных покрытий, детальная проработка каждого элемента кузова и салона.</p>
+      </div>
+      <div class="process-card" data-delay="300">
+        <div class="pc-num">04</div>
+        <div class="pc-line"></div>
+        <h3>Инспекция и выдача</h3>
+        <p>Финальная проверка под светом, фотоотчёт, инструктаж по уходу. Передаём автомобиль с гарантией.</p>
       </div>
     </div>
   </section>
 
   <!-- TESTIMONIALS -->
-  <section class="testimonials">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">Отзывы</p>
-        <h2 class="section-title">Что говорят клиенты</h2>
+  <section class="reviews-section">
+    <div class="reviews-header">
+      <p class="eyebrow">Отзывы клиентов</p>
+      <h2 class="section-title split-text">Что говорят<br/><em>о нас</em></h2>
+    </div>
+    <div class="reviews-track" id="reviewsTrack">
+      <div class="review-card">
+        <div class="rc-stars">★★★★★</div>
+        <blockquote>"Сдал Porsche Cayenne на полировку и керамику — результат превзошёл все ожидания. Машина выглядит лучше, чем из салона. Рекомендую всем без исключения!"</blockquote>
+        <div class="rc-author">
+          <div class="rc-avatar">АМ</div>
+          <div>
+            <strong>Андрей М.</strong>
+            <span>Porsche Cayenne · Керамика Gyeon</span>
+          </div>
+        </div>
       </div>
-      <div class="testimonials-grid">
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Сдал Porsche Cayenne на полировку и керамику — результат превзошёл все ожидания. Машина выглядит лучше, чем из салона. Рекомендую всем!"</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">АМ</div>
-            <div>
-              <strong>Андрей М.</strong>
-              <span>Porsche Cayenne</span>
-            </div>
+      <div class="review-card">
+        <div class="rc-stars">★★★★★</div>
+        <blockquote>"Обратился с Range Rover после суровой зимы. Химчистка и PPF на капот — работа выполнена идеально, в срок, всё объяснили и показали. Буду постоянным клиентом."</blockquote>
+        <div class="rc-author">
+          <div class="rc-avatar">СД</div>
+          <div>
+            <strong>Сергей Д.</strong>
+            <span>Range Rover Sport · PPF + Химчистка</span>
           </div>
         </div>
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Обратился с Range Rover после зимы. Сделали химчистку и PPF на капот. Работа выполнена аккуратно, в срок, все объяснили. Очень доволен!"</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">СД</div>
-            <div>
-              <strong>Сергей Д.</strong>
-              <span>Range Rover</span>
-            </div>
+      </div>
+      <div class="review-card">
+        <div class="rc-stars">★★★★★</div>
+        <blockquote>"Привезла BMW X7 с убитым кожаным салоном. После химчистки и кондиционирования Gyeon — как абсолютно новый автомобиль. Профессионалы высочайшего класса."</blockquote>
+        <div class="rc-author">
+          <div class="rc-avatar">ЕК</div>
+          <div>
+            <strong>Елена К.</strong>
+            <span>BMW X7 · Химчистка + Кондиционирование</span>
           </div>
         </div>
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Привезла BMW X7 с убитым кожаным салоном. После химчистки и кондиционирования — как новый! Мастера — профессионалы высшего класса."</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">ЕК</div>
-            <div>
-              <strong>Елена К.</strong>
-              <span>BMW X7</span>
-            </div>
+      </div>
+      <div class="review-card">
+        <div class="rc-stars">★★★★★</div>
+        <blockquote>"Полный детейлинг G-Wagon. Ребята сделали то, что другие считали невозможным — машина блестит как новая. Отдельное спасибо за внимание к деталям."</blockquote>
+        <div class="rc-author">
+          <div class="rc-avatar">ДС</div>
+          <div>
+            <strong>Дмитрий С.</strong>
+            <span>Mercedes G-Class · Комплексный детейлинг</span>
           </div>
         </div>
       </div>
     </div>
+    <div class="reviews-nav">
+      <button class="rv-prev" id="rvPrev" data-cursor="link">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14 10H4M8 5 3 10l5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="rv-dots" id="rvDots">
+        <div class="rv-dot active"></div>
+        <div class="rv-dot"></div>
+        <div class="rv-dot"></div>
+        <div class="rv-dot"></div>
+      </div>
+      <button class="rv-next" id="rvNext" data-cursor="link">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 10h10M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
   </section>
 
   <!-- CONTACT -->
-  <section class="contact" id="contact">
-    <div class="container">
-      <div class="contact-grid">
-        <div class="contact-info">
-          <p class="section-eyebrow">Свяжитесь с нами</p>
-          <h2 class="section-title">Запишитесь на детейлинг</h2>
-          <p>Оставьте заявку и мы свяжемся с вами в течение часа, обсудим детали и подберём оптимальный пакет услуг.</p>
-          <div class="contact-details">
-            <div class="contact-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1A19.5 19.5 0 013.1 10.7 19.8 19.8 0 01.1 2.1 2 2 0 012.1 0h3a2 2 0 012 1.7 12.8 12.8 0 00.7 2.8 2 2 0 01-.5 2.1L6.1 7.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4 12.8 12.8 0 002.8.7 2 2 0 011.7 2z"/></svg>
-              <span>+7 (900) 000-00-00</span>
-            </div>
-            <div class="contact-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <span>info@ms-detailing.ru</span>
-            </div>
-            <div class="contact-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Москва, ул. Автомобильная, 1</span>
-            </div>
+  <section class="contact-section" id="contact">
+    <div class="contact-left">
+      <p class="eyebrow">Записаться</p>
+      <h2 class="section-title split-text">Оставьте<br/>заявку</h2>
+      <p>Ответим в течение часа, подберём услугу и согласуем удобное время.</p>
+
+      <form class="contact-form" id="contactForm">
+        <div class="cf-row">
+          <div class="cf-group">
+            <input type="text" id="cfName" placeholder=" " required/>
+            <label for="cfName">Ваше имя</label>
+          </div>
+          <div class="cf-group">
+            <input type="tel" id="cfPhone" placeholder=" " required/>
+            <label for="cfPhone">Телефон</label>
           </div>
         </div>
-        <form class="contact-form" id="contactForm">
-          <div class="form-group">
-            <label>Ваше имя</label>
-            <input type="text" placeholder="Иван Иванов" required />
+        <div class="cf-group">
+          <input type="text" id="cfCar" placeholder=" "/>
+          <label for="cfCar">Ваш автомобиль</label>
+        </div>
+        <div class="cf-group cf-select-wrap">
+          <select id="cfService">
+            <option value="" disabled selected hidden></option>
+            <option>Полировка кузова</option>
+            <option>Керамическое покрытие</option>
+            <option>Бронирование PPF</option>
+            <option>Химчистка салона</option>
+            <option>Комплексный детейлинг</option>
+          </select>
+          <label for="cfService" class="select-label">Услуга</label>
+          <svg class="select-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="cf-group">
+          <textarea id="cfMsg" placeholder=" " rows="3"></textarea>
+          <label for="cfMsg">Комментарий</label>
+        </div>
+        <button type="submit" class="cf-submit" data-cursor="link">
+          <span>Отправить заявку</span>
+          <div class="cf-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M11 4l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="form-group">
-            <label>Телефон</label>
-            <input type="tel" placeholder="+7 (___) ___-__-__" required />
-          </div>
-          <div class="form-group">
-            <label>Ваш автомобиль</label>
-            <input type="text" placeholder="BMW X5, Mercedes G-Class..." />
-          </div>
-          <div class="form-group">
-            <label>Интересующая услуга</label>
-            <select>
-              <option value="">Выберите услугу</option>
-              <option>Полировка кузова</option>
-              <option>Керамическое покрытие</option>
-              <option>Бронирование PPF</option>
-              <option>Химчистка салона</option>
-              <option>Комплексная обработка</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Комментарий</label>
-            <textarea placeholder="Опишите состояние автомобиля или пожелания..."></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary btn-full">Отправить заявку</button>
-          <p class="form-note">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>
-        </form>
+        </button>
+        <p class="cf-note">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</p>
+      </form>
+    </div>
+    <div class="contact-right">
+      <img src="assets/studio-wide.jpg" alt="MS Detailing студия"/>
+      <div class="contact-info-overlay">
+        <div class="cio-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1A19.5 19.5 0 013.1 10.7 19.8 19.8 0 01.1 2.1 2 2 0 012.1 0h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.4 2.1L6.1 7.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4 12.8 12.8 0 002.8.7 2 2 0 011.7 2z"/></svg>
+          <span>+7 (900) 000-00-00</span>
+        </div>
+        <div class="cio-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>Москва, ул. Автомобильная, 1</span>
+        </div>
+        <div class="cio-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span>Пн–Сб: 9:00–20:00</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="#" class="nav-logo">
-            <img src="assets/logo-icon.png" alt="MS" class="nav-logo-img" />
-            <span class="nav-logo-text">MS <em>Detailing</em></span>
-          </a>
-          <p>Профессиональный детейлинг премиум-класса. Ваш автомобиль в надёжных руках.</p>
-        </div>
-        <div class="footer-links">
-          <h4>Услуги</h4>
-          <ul>
-            <li><a href="#services">Полировка кузова</a></li>
-            <li><a href="#services">Керамическое покрытие</a></li>
-            <li><a href="#services">PPF бронирование</a></li>
-            <li><a href="#services">Химчистка салона</a></li>
-          </ul>
-        </div>
-        <div class="footer-links">
-          <h4>Компания</h4>
-          <ul>
-            <li><a href="#about">О студии</a></li>
-            <li><a href="#gallery">Галерея</a></li>
-            <li><a href="#contact">Контакты</a></li>
-          </ul>
-        </div>
-        <div class="footer-contact">
-          <h4>Контакты</h4>
-          <p>+7 (900) 000-00-00</p>
-          <p>info@ms-detailing.ru</p>
-          <p>Пн–Сб: 9:00–20:00</p>
-        </div>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-logo-ms">MS</span>
+        <span class="footer-logo-det">Detailing</span>
       </div>
-      <div class="footer-bottom">
-        <p>© 2025 MS Detailing. Все права защищены.</p>
+      <div class="footer-links-grid">
+        <div>
+          <h5>Услуги</h5>
+          <ul>
+            <li><a href="#services" data-cursor="link">Полировка кузова</a></li>
+            <li><a href="#services" data-cursor="link">Керамическое покрытие</a></li>
+            <li><a href="#services" data-cursor="link">PPF бронирование</a></li>
+            <li><a href="#services" data-cursor="link">Химчистка салона</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Компания</h5>
+          <ul>
+            <li><a href="#about" data-cursor="link">О студии</a></li>
+            <li><a href="#gallery" data-cursor="link">Галерея</a></li>
+            <li><a href="#contact" data-cursor="link">Контакты</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Контакты</h5>
+          <ul>
+            <li><a href="tel:+79000000000" data-cursor="link">+7 (900) 000-00-00</a></li>
+            <li><a href="mailto:info@ms-detailing.ru" data-cursor="link">info@ms-detailing.ru</a></li>
+            <li><span>Пн–Сб: 9:00–20:00</span></li>
+          </ul>
+        </div>
       </div>
     </div>
+    <div class="footer-bottom">
+      <p>© 2025 MS Detailing. Все права защищены.</p>
+      <p>Профессиональный детейлинг премиум-класса</p>
+    </div>
   </footer>
+
+  <!-- FLOATING CTA -->
+  <a href="#contact" class="floating-cta" id="floatingCta" data-cursor="link">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1A19.5 19.5 0 013.1 10.7 19.8 19.8 0 01.1 2.1 2 2 0 012.1 0h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.4 2.1L6.1 7.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4 12.8 12.8 0 002.8.7 2 2 0 011.7 2z"/></svg>
+    <span>Записаться</span>
+  </a>
 
   <script src="main.js"></script>
 </body>
