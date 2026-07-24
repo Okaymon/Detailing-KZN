@@ -17,7 +17,7 @@
 
   <!-- CARBON HUNT: Floating UI -->
   <div class="carbon-hint" id="carbonHint">
-    <span class="ch-spark">✦</span> На сайте спрятаны <strong>4 золотые искры</strong> — найди все и получи промокод на скидку <strong>20%</strong>
+    <span class="ch-spark">✦</span> На сайте спрятаны <strong>10 золотых искр</strong> — найди все и получи промокод на скидку <strong>25%</strong>
     <button class="ch-close" id="carbonHintClose" aria-label="Закрыть">×</button>
   </div>
 
@@ -26,7 +26,7 @@
     <span class="cht-label">Искры:</span>
     <span class="cht-count" id="carbonCount">0</span>
     <span class="cht-sep">/</span>
-    <span class="cht-total">4</span>
+    <span class="cht-total">10</span>
   </div>
 
   <div class="spark-toast" id="sparkToast"></div>
@@ -34,13 +34,21 @@
   <div class="carbon-modal" id="carbonModal" role="dialog" aria-modal="true">
     <div class="cm-backdrop" id="cmBackdrop"></div>
     <div class="cm-box">
-      <div class="cm-firework">✦ ✦ ✦ ✦</div>
+      <div class="cm-celebration" aria-hidden="true">
+        <span class="cm-orbit cm-orbit-a">✦</span>
+        <span class="cm-orbit cm-orbit-b">✧</span>
+        <span class="cm-orbit cm-orbit-c">✦</span>
+        <span class="cm-burst cm-burst-a"></span>
+        <span class="cm-burst cm-burst-b"></span>
+        <span class="cm-burst cm-burst-c"></span>
+      </div>
+      <div class="cm-firework">✦ ✧ ✦ ✧ ✦</div>
       <h2 class="cm-title">Поздравляем!</h2>
-      <p class="cm-desc">Вы нашли все 4 карбоновые искры и заслужили персональную скидку</p>
-      <div class="cm-discount">−20%</div>
+      <p class="cm-desc">Вы нашли все 10 карбоновых искр и открыли главный бонус студии</p>
+      <div class="cm-discount">−25%</div>
       <div class="cm-code-wrap">
         <span class="cm-code-label">Промокод</span>
-        <span class="cm-code" id="cmCode">CARBON20</span>
+        <span class="cm-code" id="cmCode">CARBON25</span>
         <button class="cm-copy" id="cmCopy">Скопировать</button>
       </div>
       <p class="cm-note">Назовите промокод при записи или введите в поле комментария к заявке</p>
@@ -419,6 +427,8 @@
       </div>
 
     </div>
+    <!-- SPARK 5 -->
+    <div class="carbon-spark" data-spark="5" title="Нашли искру!">✦</div>
   </section>
 
   <!-- STATS -->
@@ -446,6 +456,8 @@
         <p>Мастеров в команде</p>
       </div>
     </div>
+    <!-- SPARK 6 -->
+    <div class="carbon-spark" data-spark="6" title="Нашли искру!">✦</div>
   </section>
 
   <!-- GALLERY -->
@@ -737,6 +749,8 @@
       </div>
 
     </div>
+    <!-- SPARK 7 -->
+    <div class="carbon-spark" data-spark="7" title="Нашли искру!">✦</div>
   </section>
 
   <!-- ABOUT -->
@@ -773,6 +787,8 @@
         <span>Записаться на консультацию</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
+      <!-- SPARK 8 -->
+      <div class="carbon-spark" data-spark="8" title="Нашли искру!">✦</div>
     </div>
   </section>
 
@@ -804,6 +820,8 @@
         <p>Финальная проверка под светом, фотоотчёт, инструктаж по уходу. Передаём автомобиль с гарантией.</p>
       </div>
     </div>
+    <!-- SPARK 9 -->
+    <div class="carbon-spark" data-spark="9" title="Нашли искру!">✦</div>
   </section>
 
   <!-- ═══════════════════════════════════ GUARANTEE ═══════════════════════════════════ -->
@@ -857,6 +875,8 @@
         </div>
       </div>
     </div>
+    <!-- SPARK 10 -->
+    <div class="carbon-spark" data-spark="10" title="Нашли искру!">✦</div>
   </section>
 
   <!-- TESTIMONIALS -->

@@ -625,7 +625,7 @@ initBASlider(
 
 // ─── CARBON HUNT — Gamified Discount ─────────────
 (function () {
-  const TOTAL       = 4;
+  const TOTAL       = 10;
   const STORE_KEY   = 'msdc_sparks_v1';
   const HINT_KEY    = 'msdc_hint_seen';
 
@@ -645,10 +645,16 @@ initBASlider(
   try { found = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || '[]')); } catch (_) {}
 
   const toastMessages = [
-    '✦ Первая искра найдена! 1 из 4',
-    '✦ Отлично! 2 из 4 — ищите дальше',
-    '✦ Горячо! 3 из 4 — почти у цели!',
-    '✦ Все 4 искры найдены! Получите скидку 20%'
+    '✦ Первая искра найдена! 1 из 10',
+    '✦ Отлично! 2 из 10 — ищите дальше',
+    '✦ Горячо! 3 из 10 — искра рядом',
+    '✦ Уже 4 из 10 — продолжайте охоту',
+    '✦ Пятая искра найдена! Половина пути',
+    '✦ Великолепно! 6 из 10',
+    '✦ Седьмая искра найдена — ещё немного',
+    '✦ 8 из 10 — бонус уже близко',
+    '✦ Осталась последняя искра!',
+    '✦ Все 10 искр найдены! Получите скидку 25%'
   ];
 
   function save()         { localStorage.setItem(STORE_KEY, JSON.stringify([...found])); }
@@ -722,7 +728,7 @@ initBASlider(
   cmCta?.addEventListener('click', closeModal);
 
   cmCopy?.addEventListener('click', () => {
-    const code = 'CARBON20';
+    const code = 'CARBON25';
     navigator.clipboard.writeText(code).then(() => {
       cmCopy.textContent = 'Скопировано ✓';
     }).catch(() => {
