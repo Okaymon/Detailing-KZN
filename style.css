@@ -46,10 +46,10 @@
   left: 18px;
   z-index: 10;
 }
-/* Guarantee spark: mid-right of the guarantee section, clear of nav */
+/* Guarantee spark: top-right corner of the guarantee-left text column */
 .carbon-spark[data-spark="4"] {
-  top: 180px;
-  right: 84px;
+  top: 0;
+  right: 0;
   z-index: 60;
 }
 
