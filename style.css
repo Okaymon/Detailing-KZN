@@ -1313,6 +1313,7 @@ ul { list-style: none; }
 }
 
 .gc-card {
+  position: relative;
   padding: 28px 24px;
   background: var(--dark-3); border: 1px solid var(--border-w); border-radius: 8px;
   display: flex; flex-direction: column; gap: 8px;
