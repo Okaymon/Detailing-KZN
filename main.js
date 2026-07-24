@@ -479,38 +479,31 @@ if (contactForm) {
 }
 
 // ─── IPHONE VIDEO FULLSCREEN ────────────────────
-const iphoneFrame = document.getElementById('iphoneFrame');
-const iphoneVideo = document.getElementById('iphoneVideo');
+document.querySelectorAll('.iphone-frame').forEach(frame => {
+  const video = frame.querySelector('video');
+  if (!video) return;
 
-if (iphoneFrame && iphoneVideo) {
-  iphoneFrame.addEventListener('click', async () => {
-    iphoneVideo.muted = false;
+  frame.addEventListener('click', async () => {
+    video.muted = false;
     try {
-      if (iphoneVideo.requestFullscreen) {
-        await iphoneVideo.requestFullscreen();
-      } else if (iphoneVideo.webkitRequestFullscreen) {
-        await iphoneVideo.webkitRequestFullscreen();
-      } else if (iphoneVideo.webkitEnterFullscreen) {
-        // iOS Safari fallback
-        iphoneVideo.webkitEnterFullscreen();
-      }
+      if (video.requestFullscreen)             await video.requestFullscreen();
+      else if (video.webkitRequestFullscreen)  await video.webkitRequestFullscreen();
+      else if (video.webkitEnterFullscreen)    video.webkitEnterFullscreen();
     } catch (_) {}
   });
+});
 
-  // Re-mute and loop normally when fullscreen exits
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      iphoneVideo.muted = true;
-      if (iphoneVideo.paused) iphoneVideo.play();
-    }
-  });
-  document.addEventListener('webkitfullscreenchange', () => {
-    if (!document.webkitFullscreenElement) {
-      iphoneVideo.muted = true;
-      if (iphoneVideo.paused) iphoneVideo.play();
-    }
-  });
+// Re-mute when any fullscreen exits
+function onFullscreenExit() {
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    document.querySelectorAll('.iphone-frame video').forEach(v => {
+      v.muted = true;
+      if (v.paused) v.play();
+    });
+  }
 }
+document.addEventListener('fullscreenchange', onFullscreenExit);
+document.addEventListener('webkitfullscreenchange', onFullscreenExit);
 
 // ─── MAGNETIC BUTTONS ───────────────────────────
 function addMagnet(selector, strength = 0.35) {
