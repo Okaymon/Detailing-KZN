@@ -1834,6 +1834,37 @@ a.cic-val:hover { color: var(--gold); }
   .cases-section { padding: 64px 24px; }
   .ba-slider { aspect-ratio: 3/2; }
 
+  .about-content {
+    min-width: 0;
+    padding: 64px 20px;
+    overflow: hidden;
+  }
+  .about-content .section-title {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+    line-height: 1.05;
+  }
+  .about-content > p {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .about-specs {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 32px;
+    padding: 20px;
+  }
+  .spec-item {
+    min-width: 0;
+  }
+  .spec-item > div:last-child {
+    min-width: 0;
+  }
+  .spec-item strong,
+  .spec-item span {
+    overflow-wrap: anywhere;
+  }
+  .about-visual { height: 300px; }
+
   .process-grid { grid-template-columns: 1fr; }
   .reviews-track { --reviews-per-view: 1; }
   .reviews-range { width: min(160px, 38vw); }
