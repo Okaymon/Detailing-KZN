@@ -46,10 +46,10 @@
   left: 18px;
   z-index: 10;
 }
-/* Guarantee spark: top-right corner of the guarantee-left text column */
+/* Modal spark: bottom-left corner of the modal box */
 .carbon-spark[data-spark="4"] {
-  top: 0;
-  right: 0;
+  bottom: 18px;
+  left: 20px;
   z-index: 60;
 }
 
