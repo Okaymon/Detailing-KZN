@@ -1077,6 +1077,60 @@ ul { list-style: none; }
 .si-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
 .service-item:hover .si-img img { transform: scale(1.05); }
 
+/* iPhone mockup variant */
+.si-img--phone {
+  background: transparent;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iphone-frame {
+  position: relative;
+  width: 108px;
+  height: 222px;
+  background: #111;
+  border-radius: 26px;
+  border: 2px solid #3c3c3c;
+  box-shadow:
+    0 0 0 1px #0a0a0a,
+    inset 0 0 0 1px #505050,
+    0 28px 64px rgba(0,0,0,0.75),
+    0 4px 16px rgba(0,0,0,0.5);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+/* Dynamic Island */
+.iphone-frame::before {
+  content: '';
+  position: absolute;
+  top: 9px; left: 50%;
+  transform: translateX(-50%);
+  width: 34px; height: 11px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 3;
+}
+/* Side button shine */
+.iphone-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 4;
+}
+.iphone-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 24px;
+  z-index: 1;
+}
+
 /* =============================================
    STATS
    ============================================= */
