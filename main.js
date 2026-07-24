@@ -408,6 +408,7 @@ modalForm.addEventListener('submit', async e => {
   fd.append('name',    document.getElementById('mfName').value.trim());
   fd.append('phone',   document.getElementById('mfPhone').value.trim());
   fd.append('request', document.getElementById('mfRequest').value.trim());
+  if (window._activePromoCode) fd.append('promo_code', window._activePromoCode);
   selectedFiles.forEach(f => fd.append('photos', f));
 
   const successHtml = `
@@ -449,6 +450,7 @@ if (contactForm) {
     fd.append('name',    name);
     fd.append('phone',   phone);
     fd.append('request', requestParts.join('\n'));
+    if (window._activePromoCode) fd.append('promo_code', window._activePromoCode);
 
     btn.disabled = true;
     span.textContent = 'Отправляем…';
@@ -725,7 +727,12 @@ initBASlider(
 
   cmBackdrop?.addEventListener('click', closeModal);
   cmCloseBtn?.addEventListener('click', closeModal);
-  cmCta?.addEventListener('click', closeModal);
+  cmCta?.addEventListener('click', () => {
+    // Store promo code so form submissions can tag it
+    const code = document.getElementById('cmCode')?.textContent?.trim() || 'CARBON25';
+    window._activePromoCode = code;
+    closeModal();
+  });
 
   cmCopy?.addEventListener('click', () => {
     const code = 'CARBON25';

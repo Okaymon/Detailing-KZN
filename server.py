@@ -72,8 +72,11 @@ def tg_call(method, fields, files=None):
         return json.loads(r.read())
 
 
-def send_to_telegram(name, phone, request_text, photos):
+def send_to_telegram(name, phone, request_text, photos, promo_code=''):
     lines = ['📋 <b>Новая заявка — MS Detailing Carbon</b>', '']
+    if promo_code:
+        lines.append(f'🎟 <b>ПРОМОКОД: {promo_code} — скидка 25%</b>')
+        lines.append('')
     if name:         lines.append(f'👤 <b>Имя:</b> {name}')
     if phone:        lines.append(f'📞 <b>Телефон:</b> {phone}')
     if request_text: lines.append(f'💬 <b>Запрос:</b> {request_text}')
@@ -195,9 +198,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # Accept phone from field 'phone' (section form) or 'tg_nick' (legacy modal)
             phone        = fields.get('phone',   fields.get('tg_nick', '')).strip()
             request_text = fields.get('request', '').strip()
+            promo_code   = fields.get('promo_code', '').strip()
 
             submission_id = request_id(fields, photos)
-            send_to_telegram(name, phone, request_text, photos)
+            send_to_telegram(name, phone, request_text, photos, promo_code)
             print(f'[submit] delivered request {submission_id}')
             self._json_response(200, {'ok': True})
 
