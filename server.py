@@ -5,6 +5,8 @@ import socketserver
 import os
 import json
 import io
+import hashlib
+import hmac
 import email
 import email.parser
 import email.policy
@@ -15,6 +17,31 @@ PORT      = 5000
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 TG_TOKEN  = os.environ.get('TG_BOT_TOKEN', '')
 TG_CHAT   = os.environ.get('TG_CHAT_ID', '')
+SESSION_SECRET = os.environ.get('SESSION_SECRET', '')
+
+
+def config_status():
+    """Return configuration readiness without exposing secret values."""
+    return {
+        'telegram': bool(TG_TOKEN and TG_CHAT),
+        'session': bool(SESSION_SECRET),
+    }
+
+
+def request_id(fields, photos):
+    """Create a short, non-reversible correlation id for a submitted request."""
+    payload = '\x1f'.join([
+        fields.get('name', ''),
+        fields.get('phone', ''),
+        fields.get('request', ''),
+        str(len(photos)),
+    ]).encode('utf-8')
+    digest = hmac.new(
+        SESSION_SECRET.encode('utf-8'),
+        payload,
+        hashlib.sha256,
+    ).hexdigest()
+    return digest[:12]
 
 
 def _build_multipart(fields, files=None):
@@ -154,8 +181,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
 
-        if not TG_TOKEN or not TG_CHAT:
-            self._json_response(503, {'ok': False, 'error': 'Telegram not configured'})
+        status = config_status()
+        if not status['telegram'] or not status['session']:
+            self._json_response(503, {
+                'ok': False,
+                'error': 'Notification service is not configured',
+            })
             return
 
         try:
@@ -165,7 +196,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             phone        = fields.get('phone',   fields.get('tg_nick', '')).strip()
             request_text = fields.get('request', '').strip()
 
+            submission_id = request_id(fields, photos)
             send_to_telegram(name, phone, request_text, photos)
+            print(f'[submit] delivered request {submission_id}')
             self._json_response(200, {'ok': True})
 
         except Exception as e:
@@ -173,7 +206,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._json_response(500, {'ok': False, 'error': str(e)})
 
 
-socketserver.TCPServer.allow_reuse_address = True
-with socketserver.TCPServer(('0.0.0.0', PORT), Handler) as httpd:
-    print(f'MS Detailing Carbon server running on port {PORT}')
-    httpd.serve_forever()
+def main():
+    socketserver.TCPServer.allow_reuse_address = True
+    status = config_status()
+    print(
+        'MS Detailing Carbon server running on port '
+        f'{PORT} (telegram={"ready" if status["telegram"] else "missing"}, '
+        f'session={"ready" if status["session"] else "missing"})'
+    )
+    with socketserver.TCPServer(('0.0.0.0', PORT), Handler) as httpd:
+        httpd.serve_forever()
+
+
+if __name__ == '__main__':
+    main()
