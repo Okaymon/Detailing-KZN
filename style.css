@@ -1692,7 +1692,7 @@ a.cic-val:hover { color: var(--gold); }
    FLOATING CTA
    ============================================= */
 .floating-cta {
-  position: fixed; bottom: 32px; right: 32px; z-index: 800;
+  position: fixed; bottom: 32px; right: 32px; z-index: 950;
   display: flex; align-items: center; gap: 10px; padding: 14px 22px;
   background: var(--gold); border-radius: 100px;
   font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--black);
