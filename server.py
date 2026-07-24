@@ -72,10 +72,16 @@ def tg_call(method, fields, files=None):
         return json.loads(r.read())
 
 
+PROMO_CODE = 'CARBON25'
+
 def send_to_telegram(name, phone, request_text, photos, promo_code=''):
+    # Detect promo code: either passed explicitly (Carbon Hunt flow)
+    # or typed by the client anywhere in the request text
+    used_promo = bool(promo_code) or PROMO_CODE.upper() in request_text.upper()
+
     lines = ['📋 <b>Новая заявка — MS Detailing Carbon</b>', '']
-    if promo_code:
-        lines.append(f'🎟 <b>ПРОМОКОД: {promo_code} — скидка 25%</b>')
+    if used_promo:
+        lines.append(f'🎟 <b>ПРОМОКОД {PROMO_CODE} — скидка 25%</b>')
         lines.append('')
     if name:         lines.append(f'👤 <b>Имя:</b> {name}')
     if phone:        lines.append(f'📞 <b>Телефон:</b> {phone}')
