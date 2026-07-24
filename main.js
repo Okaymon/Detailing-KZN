@@ -478,6 +478,40 @@ if (contactForm) {
   });
 }
 
+// ─── IPHONE VIDEO FULLSCREEN ────────────────────
+const iphoneFrame = document.getElementById('iphoneFrame');
+const iphoneVideo = document.getElementById('iphoneVideo');
+
+if (iphoneFrame && iphoneVideo) {
+  iphoneFrame.addEventListener('click', async () => {
+    iphoneVideo.muted = false;
+    try {
+      if (iphoneVideo.requestFullscreen) {
+        await iphoneVideo.requestFullscreen();
+      } else if (iphoneVideo.webkitRequestFullscreen) {
+        await iphoneVideo.webkitRequestFullscreen();
+      } else if (iphoneVideo.webkitEnterFullscreen) {
+        // iOS Safari fallback
+        iphoneVideo.webkitEnterFullscreen();
+      }
+    } catch (_) {}
+  });
+
+  // Re-mute and loop normally when fullscreen exits
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      iphoneVideo.muted = true;
+      if (iphoneVideo.paused) iphoneVideo.play();
+    }
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    if (!document.webkitFullscreenElement) {
+      iphoneVideo.muted = true;
+      if (iphoneVideo.paused) iphoneVideo.play();
+    }
+  });
+}
+
 // ─── MAGNETIC BUTTONS ───────────────────────────
 function addMagnet(selector, strength = 0.35) {
   document.querySelectorAll(selector).forEach(el => {
