@@ -622,3 +622,118 @@ initBASlider(
   document.getElementById('ba2-after'),
   document.getElementById('ba2-handle')
 );
+
+// ─── CARBON HUNT — Gamified Discount ─────────────
+(function () {
+  const TOTAL       = 4;
+  const STORE_KEY   = 'msdc_sparks_v1';
+  const HINT_KEY    = 'msdc_hint_seen';
+
+  const toast       = document.getElementById('sparkToast');
+  const tracker     = document.getElementById('carbonTracker');
+  const countEl     = document.getElementById('carbonCount');
+  const hint        = document.getElementById('carbonHint');
+  const hintClose   = document.getElementById('carbonHintClose');
+  const modal       = document.getElementById('carbonModal');
+  const cmBackdrop  = document.getElementById('cmBackdrop');
+  const cmCopy      = document.getElementById('cmCopy');
+  const cmCta       = document.getElementById('cmCta');
+  const cmCloseBtn  = document.getElementById('cmCloseBtn');
+
+  // Load progress
+  let found = new Set();
+  try { found = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || '[]')); } catch (_) {}
+
+  const toastMessages = [
+    '✦ Первая искра найдена! 1 из 4',
+    '✦ Отлично! 2 из 4 — ищите дальше',
+    '✦ Горячо! 3 из 4 — почти у цели!',
+    '✦ Все 4 искры найдены! Получите скидку 20%'
+  ];
+
+  function save()         { localStorage.setItem(STORE_KEY, JSON.stringify([...found])); }
+  function updateCount()  { countEl.textContent = found.size; }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('visible');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('visible'), 2400);
+  }
+
+  function openModal() {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Init: hide already-collected sparks; mark tracker complete if all found
+  document.querySelectorAll('.carbon-spark').forEach(el => {
+    const id = el.dataset.spark;
+    if (found.has(id)) { el.style.display = 'none'; return; }
+
+    el.addEventListener('click', () => {
+      if (found.has(id)) return;
+      found.add(id);
+      save();
+
+      // Burst animation then hide
+      el.classList.add('found');
+      setTimeout(() => { el.style.display = 'none'; }, 560);
+
+      updateCount();
+      showToast(toastMessages[found.size - 1] || '✦ Искра найдена!');
+
+      // Dismiss hint if visible
+      if (hint.classList.contains('visible')) {
+        hint.classList.add('hiding');
+        setTimeout(() => { hint.classList.remove('visible', 'hiding'); }, 420);
+      }
+
+      // Celebrate tracker
+      tracker.classList.remove('complete');
+      void tracker.offsetWidth; // reflow to restart animation
+      if (found.size === TOTAL) tracker.classList.add('complete');
+
+      // Open reward modal after brief pause
+      if (found.size === TOTAL) setTimeout(openModal, 750);
+    });
+  });
+
+  updateCount();
+  if (found.size === TOTAL) tracker.classList.add('complete');
+
+  // Show hint after 4 s on first visit (if not all found)
+  if (found.size < TOTAL && !localStorage.getItem(HINT_KEY)) {
+    setTimeout(() => hint.classList.add('visible'), 4000);
+  }
+
+  hintClose?.addEventListener('click', () => {
+    hint.classList.add('hiding');
+    setTimeout(() => { hint.classList.remove('visible', 'hiding'); }, 420);
+    localStorage.setItem(HINT_KEY, '1');
+  });
+
+  cmBackdrop?.addEventListener('click', closeModal);
+  cmCloseBtn?.addEventListener('click', closeModal);
+  cmCta?.addEventListener('click', closeModal);
+
+  cmCopy?.addEventListener('click', () => {
+    const code = 'CARBON20';
+    navigator.clipboard.writeText(code).then(() => {
+      cmCopy.textContent = 'Скопировано ✓';
+    }).catch(() => {
+      // fallback for old browsers
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById('cmCode'));
+      sel.removeAllRanges();
+      sel.addRange(range);
+      cmCopy.textContent = 'Скопировано ✓';
+    });
+    setTimeout(() => { cmCopy.textContent = 'Скопировать'; }, 2200);
+  });
+})();

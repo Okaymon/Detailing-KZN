@@ -15,6 +15,40 @@
   <div class="cursor-dot" id="cursorDot"></div>
   <div class="cursor-ring" id="cursorRing"></div>
 
+  <!-- CARBON HUNT: Floating UI -->
+  <div class="carbon-hint" id="carbonHint">
+    <span class="ch-spark">✦</span> На сайте спрятаны <strong>4 золотые искры</strong> — найди все и получи промокод на скидку <strong>20%</strong>
+    <button class="ch-close" id="carbonHintClose" aria-label="Закрыть">×</button>
+  </div>
+
+  <div class="carbon-hunt-tracker" id="carbonTracker">
+    <span class="cht-icon">✦</span>
+    <span class="cht-label">Искры:</span>
+    <span class="cht-count" id="carbonCount">0</span>
+    <span class="cht-sep">/</span>
+    <span class="cht-total">4</span>
+  </div>
+
+  <div class="spark-toast" id="sparkToast"></div>
+
+  <div class="carbon-modal" id="carbonModal" role="dialog" aria-modal="true">
+    <div class="cm-backdrop" id="cmBackdrop"></div>
+    <div class="cm-box">
+      <div class="cm-firework">✦ ✦ ✦ ✦</div>
+      <h2 class="cm-title">Поздравляем!</h2>
+      <p class="cm-desc">Вы нашли все 4 карбоновые искры и заслужили персональную скидку</p>
+      <div class="cm-discount">−20%</div>
+      <div class="cm-code-wrap">
+        <span class="cm-code-label">Промокод</span>
+        <span class="cm-code" id="cmCode">CARBON20</span>
+        <button class="cm-copy" id="cmCopy">Скопировать</button>
+      </div>
+      <p class="cm-note">Назовите промокод при записи или введите в поле комментария к заявке</p>
+      <a href="#contact" class="cm-cta" id="cmCta">Записаться со скидкой →</a>
+      <button class="cm-close-btn" id="cmCloseBtn">Закрыть</button>
+    </div>
+  </div>
+
   <!-- LOADER -->
   <div class="loader" id="loader">
     <div class="loader-inner">
@@ -165,6 +199,8 @@
     <div class="hero-scroll">
       <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
     </div>
+    <!-- SPARK 1 -->
+    <div class="carbon-spark" data-spark="1" title="Нашли искру!">✦</div>
   </section>
 
   <!-- MARQUEE -->
@@ -254,6 +290,8 @@
           <div class="pkg-price">от 25 000 ₽</div>
         </div>
         <a href="#" class="pkg-cta pkg-cta-gold js-modal" data-cursor="link">Получить расчёт</a>
+        <!-- SPARK 2 -->
+        <div class="carbon-spark" data-spark="2" title="Нашли искру!">✦</div>
       </div>
 
       <div class="pkg-card reveal-up" data-delay="160">
@@ -426,6 +464,8 @@
         <div class="gm-item gm-lg" data-cursor="zoom">
           <img src="assets/gwagon-front.jpg" alt="G-Wagon детейлинг"/>
           <div class="gm-info"><span class="gm-tag">Полировка + Керамика</span><h4>Mercedes G-Wagon</h4></div>
+          <!-- SPARK 3 -->
+          <div class="carbon-spark" data-spark="3" title="Нашли искру!">✦</div>
         </div>
         <div class="gm-col">
           <div class="gm-item gm-sm" data-cursor="zoom">
@@ -902,6 +942,8 @@
             </div>
             <div class="rc-date">Фев. 2025</div>
           </div>
+          <!-- SPARK 4 -->
+          <div class="carbon-spark" data-spark="4" title="Нашли искру!">✦</div>
         </div>
 
       </div>
