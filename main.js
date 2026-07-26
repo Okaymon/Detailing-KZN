@@ -667,8 +667,8 @@ initBASlider(
 
 // ─── CARBON HUNT — Gamified Discount ─────────────
 (function () {
-  const TOTAL       = 10;
-  const STORE_KEY   = 'msdc_sparks_v2';
+  const TOTAL       = 7;
+  const STORE_KEY   = 'msdc_sparks_v3';
   const HINT_KEY    = 'msdc_hint_seen';
 
   const toast       = document.getElementById('sparkToast');
@@ -687,16 +687,13 @@ initBASlider(
   try { found = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || '[]')); } catch (_) {}
 
   const toastMessages = [
-    '✦ Первая искра! Их здесь ещё 9 — исследуй весь сайт',
-    '✦ 2 из 10 — хороший старт, продолжай листать',
-    '✦ 3 из 10 — они прячутся в неожиданных местах',
-    '✦ 4 из 10 — неплохо скрываем, да? Ищи дальше',
-    '✦ Половина пути! 5 из 10 ✦ Промокод всё ближе',
-    '✦ 6 из 10 — смотри внимательнее на детали',
-    '✦ 7 из 10 — уже чувствуешь скидку? 😏',
-    '✦ 8 из 10 — почти у цели, не останавливайся',
-    '✦ 9 из 10 — последняя искра где-то рядом!',
-    '✦ ВСЕ 10 ИСКР! Промокод −25% открыт!'
+    '✦ Первая искра! Их здесь ещё 6 — исследуй весь сайт',
+    '✦ 2 из 7 — хороший старт, продолжай листать',
+    '✦ 3 из 7 — они прячутся в неожиданных местах',
+    '✦ 4 из 7 — уже больше половины, ищи дальше',
+    '✦ 5 из 7 — промокод всё ближе',
+    '✦ 6 из 7 — последняя искра где-то рядом!',
+    '✦ ВСЕ 7 ИСКР! Промокод −25% открыт!'
   ];
 
   function save() { localStorage.setItem(STORE_KEY, JSON.stringify([...found])); }
@@ -728,7 +725,9 @@ initBASlider(
     const id = el.dataset.spark;
     if (found.has(id)) { el.style.display = 'none'; return; }
 
-    el.addEventListener('click', () => {
+    el.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
       if (found.has(id)) return;
       found.add(id);
       save();
