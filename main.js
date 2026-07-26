@@ -668,7 +668,7 @@ initBASlider(
 // ─── CARBON HUNT — Gamified Discount ─────────────
 (function () {
   const TOTAL       = 10;
-  const STORE_KEY   = 'msdc_sparks_v1';
+  const STORE_KEY   = 'msdc_sparks_v2';
   const HINT_KEY    = 'msdc_hint_seen';
 
   const toast       = document.getElementById('sparkToast');
