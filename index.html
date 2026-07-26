@@ -17,16 +17,29 @@
 
   <!-- CARBON HUNT: Floating UI -->
   <div class="carbon-hint" id="carbonHint">
-    <span class="ch-spark">✦</span> На сайте спрятаны <strong>10 золотых искр</strong> — найди все и получи промокод на скидку <strong>25%</strong>
+    <div class="ch-game-tag">МИНИ-ИГРА</div>
+    <div class="ch-body">
+      <span class="ch-spark-icon">✦</span>
+      <div class="ch-text">
+        По сайту спрятаны <strong>10 золотых искр</strong><br/>
+        Найди все — получи промокод <strong>−25%</strong>
+      </div>
+    </div>
     <button class="ch-close" id="carbonHintClose" aria-label="Закрыть">×</button>
   </div>
 
   <div class="carbon-hunt-tracker" id="carbonTracker">
-    <span class="cht-icon">✦</span>
-    <span class="cht-label">Искры:</span>
-    <span class="cht-count" id="carbonCount">0</span>
-    <span class="cht-sep">/</span>
-    <span class="cht-total">10</span>
+    <div class="cht-row">
+      <span class="cht-icon">✦</span>
+      <span class="cht-title">Carbon Hunt</span>
+      <span class="cht-score"><span id="carbonCount">0</span><span class="cht-of">/10</span></span>
+    </div>
+    <div class="cht-bar">
+      <span class="cht-dot"></span><span class="cht-dot"></span><span class="cht-dot"></span>
+      <span class="cht-dot"></span><span class="cht-dot"></span><span class="cht-dot"></span>
+      <span class="cht-dot"></span><span class="cht-dot"></span><span class="cht-dot"></span>
+      <span class="cht-dot"></span>
+    </div>
   </div>
 
   <div class="spark-toast" id="sparkToast"></div>
@@ -915,8 +928,6 @@
         </div>
       </div>
     </div>
-    <!-- SPARK 10 -->
-    <div class="carbon-spark" data-spark="10" title="Нашли искру!">✦</div>
   </section>
 
   <!-- TESTIMONIALS -->
@@ -929,6 +940,8 @@
       <div class="reviews-track" id="reviewsTrack">
 
         <div class="review-card">
+          <!-- SPARK 4 -->
+          <div class="carbon-spark" data-spark="4" title="Нашли искру!">✦</div>
           <div class="rc-top-row">
             <div class="rc-stars">★★★★★</div>
             <div class="rc-source">
@@ -1138,6 +1151,8 @@
       <div class="footer-brand">
         <span class="footer-logo-ms">MS</span>
         <span class="footer-logo-det">Detailing Carbon</span>
+        <!-- SPARK 10 -->
+        <div class="carbon-spark" data-spark="10" title="Нашли искру!">✦</div>
       </div>
       <div class="footer-links-grid">
         <div>
@@ -1185,8 +1200,6 @@
   <!-- MODAL FORM -->
   <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Форма заявки">
     <div class="modal-box">
-      <!-- SPARK 4 -->
-      <div class="carbon-spark" data-spark="4" title="Нашли искру!">✦</div>
       <button class="modal-close" id="modalClose" aria-label="Закрыть">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>

@@ -687,20 +687,25 @@ initBASlider(
   try { found = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || '[]')); } catch (_) {}
 
   const toastMessages = [
-    '✦ Первая искра найдена! 1 из 10',
-    '✦ Отлично! 2 из 10 — ищите дальше',
-    '✦ Горячо! 3 из 10 — искра рядом',
-    '✦ Уже 4 из 10 — продолжайте охоту',
-    '✦ Пятая искра найдена! Половина пути',
-    '✦ Великолепно! 6 из 10',
-    '✦ Седьмая искра найдена — ещё немного',
-    '✦ 8 из 10 — бонус уже близко',
-    '✦ Осталась последняя искра!',
-    '✦ Все 10 искр найдены! Получите скидку 25%'
+    '✦ Первая искра! Их здесь ещё 9 — исследуй весь сайт',
+    '✦ 2 из 10 — хороший старт, продолжай листать',
+    '✦ 3 из 10 — они прячутся в неожиданных местах',
+    '✦ 4 из 10 — неплохо скрываем, да? Ищи дальше',
+    '✦ Половина пути! 5 из 10 ✦ Промокод всё ближе',
+    '✦ 6 из 10 — смотри внимательнее на детали',
+    '✦ 7 из 10 — уже чувствуешь скидку? 😏',
+    '✦ 8 из 10 — почти у цели, не останавливайся',
+    '✦ 9 из 10 — последняя искра где-то рядом!',
+    '✦ ВСЕ 10 ИСКР! Промокод −25% открыт!'
   ];
 
-  function save()         { localStorage.setItem(STORE_KEY, JSON.stringify([...found])); }
-  function updateCount()  { countEl.textContent = found.size; }
+  function save() { localStorage.setItem(STORE_KEY, JSON.stringify([...found])); }
+  function updateCount() {
+    countEl.textContent = found.size;
+    document.querySelectorAll('.cht-dot').forEach((dot, i) => {
+      dot.classList.toggle('filled', i < found.size);
+    });
+  }
 
   function showToast(msg) {
     toast.textContent = msg;
@@ -756,7 +761,7 @@ initBASlider(
 
   // Show hint after 4 s on first visit (if not all found)
   if (found.size < TOTAL && !localStorage.getItem(HINT_KEY)) {
-    setTimeout(() => hint.classList.add('visible'), 4000);
+    setTimeout(() => hint.classList.add('visible'), 2000);
   }
 
   hintClose?.addEventListener('click', () => {
