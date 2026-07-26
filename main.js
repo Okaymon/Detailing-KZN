@@ -478,6 +478,19 @@ if (contactForm) {
   });
 }
 
+// ─── PACKAGE CARD SPOTLIGHT ─────────────────────
+document.querySelectorAll('.pkg-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.removeProperty('--mx');
+    card.style.removeProperty('--my');
+  });
+});
+
 // ─── IPHONE VIDEO FULLSCREEN ────────────────────
 document.querySelectorAll('.iphone-frame').forEach(frame => {
   const video = frame.querySelector('video');
