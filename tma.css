@@ -1298,6 +1298,213 @@ body {
 .contact-row__val { font-size: 14px; font-weight: 600; margin-top: 1px; }
 .contact-row__arrow { font-size: 18px; color: var(--text3); }
 
+/* ─── PAYMENT screens ───────────────────────── */
+.pay-order-card {
+  display: flex; align-items: center; gap: 14px;
+  margin: 16px 16px 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  overflow: hidden;
+}
+.pay-order-img {
+  width: 60px; height: 60px;
+  border-radius: var(--r-sm);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+.pay-order-label { font-size: 11px; color: var(--green); font-weight: 700; letter-spacing: .3px; margin-bottom: 2px; }
+.pay-order-service { font-size: 14px; font-weight: 700; }
+.pay-order-price { font-size: 16px; font-weight: 800; color: var(--gold); margin-top: 2px; }
+
+/* Virtual card widget */
+.pay-card-widget {
+  margin: 4px 16px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.pay-card-preview {
+  margin: 16px 16px 4px;
+  height: 140px;
+  border-radius: var(--r);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.pay-card-preview::before {
+  content: '';
+  position: absolute;
+  right: -30px; top: -30px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.pay-card-preview::after {
+  content: '';
+  position: absolute;
+  right: 30px; top: 40px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.03);
+}
+.pcp-chip {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+.pcp-number {
+  font-size: 17px;
+  letter-spacing: 2.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,.9);
+  font-family: 'SF Mono', 'Courier New', monospace;
+  margin-top: 4px;
+}
+.pcp-row {
+  display: flex; align-items: flex-end; gap: 16px;
+}
+.pcp-sublabel {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.pcp-holder, .pcp-expiry {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.85);
+  letter-spacing: .5px;
+}
+.pcp-logo {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255,255,255,.7);
+  letter-spacing: 1px;
+}
+.pay-fields { padding: 8px 0 16px; }
+.pay-input { font-family: 'SF Mono', 'Courier New', monospace; letter-spacing: 1px; }
+
+.pay-secure-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text3);
+  padding: 4px 16px 0;
+}
+.pay-bank-logos {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--text3);
+}
+
+/* Shake animation for invalid fields */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+/* Payment processing screen */
+.pay-processing-screen {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--bg);
+}
+.pay-proc-ring {
+  position: relative;
+  width: 120px; height: 120px;
+  margin-bottom: 28px;
+  transition: transform .4s var(--spring);
+}
+.pay-proc-ring--success { animation: popIn .4s var(--spring) both; }
+.pay-proc-svg {
+  width: 120px; height: 120px;
+  transform: rotate(-90deg);
+}
+.pay-proc-track {
+  fill: none;
+  stroke: var(--surface2);
+  stroke-width: 5;
+}
+.pay-proc-fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: calc(2 * 3.14159 * 34);
+  stroke-dashoffset: calc(2 * 3.14159 * 34);
+  transition: stroke-dashoffset .6s var(--easing);
+}
+.pay-proc-ring--success .pay-proc-fill { stroke: var(--green); }
+.pay-proc-icon {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38px;
+  transition: all .3s var(--spring);
+}
+.pay-proc-title {
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -.3px;
+  margin-bottom: 8px;
+  transition: opacity .3s;
+}
+.pay-proc-sub {
+  font-size: 14px; color: var(--text2);
+  margin-bottom: 36px;
+  transition: opacity .3s;
+}
+.pay-proc-steps {
+  width: 100%;
+  max-width: 260px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.pay-proc-step {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  transition: color .3s;
+}
+.pay-proc-step:last-child { border-bottom: none; }
+.pay-proc-step.pps-done { color: var(--text); }
+.pps-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  color: var(--gold);
+  flex-shrink: 0;
+  transition: background .3s, border-color .3s;
+}
+.pps-done .pps-dot {
+  background: var(--gold-bg);
+  border-color: var(--gold);
+}
+
 /* ─── Notification toast ────────────────────── */
 .toast {
   position: fixed;

@@ -335,6 +335,8 @@ function buildScreen(name, params) {
     services:        renderServices,
     'service-detail': renderServiceDetail,
     booking:         renderBooking,
+    payment:         renderPayment,
+    'payment-processing': renderPaymentProcessing,
     'booking-success': renderBookingSuccess,
     tryon:           renderTryOn,
     studio:          renderStudio,
@@ -647,13 +649,137 @@ function renderBooking({ service = '', img = '', name: svcName = '', price = '' 
     </div>`;
 }
 
+/* ── PAYMENT ──────────────────────────────────── */
+function renderPayment({ service = '', price = '', img = '' } = {}) {
+  const amount = price || 'от 8 000 ₽';
+  return `
+    <div class="nav-header">
+      <button class="nav-header__back" onclick="router.pop()">‹</button>
+      <div class="nav-header__title">Онлайн-оплата</div>
+    </div>
+    <div class="screen-body">
+
+      <div class="pay-order-card">
+        <div class="pay-order-img" style="background-image:url('${img || 'assets/gwagon-front.jpg'}')"></div>
+        <div class="pay-order-body">
+          <div class="pay-order-label">Заявка принята ✓</div>
+          <div class="pay-order-service">${service || 'Детейлинг'}</div>
+          <div class="pay-order-price">${amount}</div>
+        </div>
+      </div>
+
+      <div class="section-title--sm">Данные карты</div>
+      <div class="pay-card-widget" id="payCardWidget">
+        <div class="pay-card-preview" id="payCardPreview">
+          <div class="pcp-chip">▬▬</div>
+          <div class="pcp-number" id="pcpNumber">•••• •••• •••• ••••</div>
+          <div class="pcp-row">
+            <div>
+              <div class="pcp-sublabel">ДЕРЖАТЕЛЬ</div>
+              <div class="pcp-holder" id="pcpHolder">ИМЯ ФАМИЛИЯ</div>
+            </div>
+            <div>
+              <div class="pcp-sublabel">СРОК</div>
+              <div class="pcp-expiry" id="pcpExpiry">ММ/ГГ</div>
+            </div>
+            <div class="pcp-logo" id="pcpLogo"></div>
+          </div>
+        </div>
+
+        <div class="pay-fields">
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">Номер карты</label>
+            <input class="form-input pay-input" type="tel" id="payCardNum"
+              placeholder="0000 0000 0000 0000" maxlength="19"
+              oninput="fmtCard(this)" autocomplete="cc-number">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-bottom:12px">
+            <div>
+              <label class="form-label">Срок</label>
+              <input class="form-input pay-input" type="tel" id="payExpiry"
+                placeholder="ММ/ГГ" maxlength="5"
+                oninput="fmtExpiry(this)" autocomplete="cc-exp">
+            </div>
+            <div>
+              <label class="form-label">CVV</label>
+              <input class="form-input pay-input" type="tel" id="payCVV"
+                placeholder="•••" maxlength="3"
+                oninput="fmtCVV(this)" autocomplete="cc-csc">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Имя на карте</label>
+            <input class="form-input pay-input" type="text" id="payName"
+              placeholder="IVAN IVANOV" style="text-transform:uppercase"
+              oninput="fmtName(this)" autocomplete="cc-name">
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:20px 16px 8px">
+        <button class="btn btn--gold" id="payBtn" onclick="startPayment()">
+          <span id="payBtnText">Оплатить ${amount}</span>
+        </button>
+      </div>
+
+      <div class="pay-secure-row">
+        <span>🔒</span>
+        <span>Защита платежей · SSL · 3D‑Secure</span>
+        <span class="pay-bank-logos">VISA &nbsp;MC &nbsp;МИР</span>
+      </div>
+
+      <div style="height:16px"></div>
+    </div>`;
+}
+
+/* ── PAYMENT PROCESSING ───────────────────────── */
+function renderPaymentProcessing({ service = '', amount = '' } = {}) {
+  return `
+    <div class="pay-processing-screen" id="payProcScreen">
+      <div class="pay-proc-ring" id="payProcRing">
+        <svg viewBox="0 0 80 80" class="pay-proc-svg" id="payProcSvg">
+          <circle cx="40" cy="40" r="34" class="pay-proc-track"/>
+          <circle cx="40" cy="40" r="34" class="pay-proc-fill" id="payProcCircle"/>
+        </svg>
+        <div class="pay-proc-icon" id="payProcIcon">💳</div>
+      </div>
+      <div class="pay-proc-title" id="payProcTitle">Проверяем карту...</div>
+      <div class="pay-proc-sub" id="payProcSub">Пожалуйста, не закрывайте приложение</div>
+
+      <div class="pay-proc-steps" id="payProcSteps">
+        <div class="pay-proc-step" id="step1">
+          <span class="pps-dot"></span>Проверка карты
+        </div>
+        <div class="pay-proc-step" id="step2">
+          <span class="pps-dot"></span>Авторизация банка
+        </div>
+        <div class="pay-proc-step" id="step3">
+          <span class="pps-dot"></span>Подтверждение платежа
+        </div>
+      </div>
+    </div>`;
+}
+
 /* ── BOOKING SUCCESS ──────────────────────────── */
-function renderBookingSuccess({ service = '' } = {}) {
+function renderBookingSuccess({ service = '', paid = false, amount = '' } = {}) {
+  const payRow = paid ? `
+    <div class="success-detail__row">
+      <span class="success-detail__label">Оплата</span>
+      <span class="success-detail__value" style="color:var(--green)">✓ Оплачено ${amount}</span>
+    </div>` : `
+    <div class="success-detail__row">
+      <span class="success-detail__label">Промокод</span>
+      <span class="success-detail__value" style="color:var(--gold)">CARBON25 = −25%</span>
+    </div>`;
+
   return `
     <div class="success-screen">
-      <div class="success-checkmark">✓</div>
-      <div class="success-title">Заявка принята!</div>
-      <div class="success-sub">Наш мастер свяжется с вами в течение 15 минут и уточнит все детали.</div>
+      <div class="success-checkmark" style="${paid ? 'background:linear-gradient(135deg,var(--green),#30d158)' : ''}">✓</div>
+      <div class="success-title">${paid ? 'Оплата прошла!' : 'Заявка принята!'}</div>
+      <div class="success-sub">${paid
+        ? 'Оплата подтверждена. Мастер свяжется с вами в течение 15 минут.'
+        : 'Наш мастер свяжется с вами в течение 15 минут и уточнит все детали.'
+      }</div>
       <div class="success-detail">
         <div class="success-detail__row">
           <span class="success-detail__label">Услуга</span>
@@ -663,10 +789,7 @@ function renderBookingSuccess({ service = '' } = {}) {
           <span class="success-detail__label">Время ответа</span>
           <span class="success-detail__value">до 15 минут</span>
         </div>
-        <div class="success-detail__row">
-          <span class="success-detail__label">Промокод</span>
-          <span class="success-detail__value" style="color:var(--gold)">CARBON25 = −25%</span>
-        </div>
+        ${payRow}
       </div>
       <button class="btn btn--gold" style="max-width:280px" onclick="router.switchTab('home')">
         На главную
@@ -1151,7 +1274,13 @@ async function submitBooking(e) {
     if (data.ok) {
       haptic('success');
       saveBooking({ id: Date.now(), service: service || 'Консультация', comment: car, date: new Date().toLocaleDateString('ru-RU'), status: 'Принята' });
-      router.push('booking-success', { service: service || 'Консультация' });
+      // Find matching service for image
+      const svcMatch = SERVICES.find(s => s.booking === service);
+      router.push('payment', {
+        service: service || 'Консультация',
+        price:   svcMatch?.price || 'от 8 000 ₽',
+        img:     svcMatch?.img   || 'assets/gwagon-front.jpg',
+      });
     } else {
       throw new Error(data.error || 'Ошибка сервера');
     }
@@ -1263,6 +1392,137 @@ function resetTryon() {
   if (up) up.style.display = 'flex';
   if (ws) ws.style.display = 'none';
   if (fi) fi.value = '';
+}
+
+/* ══════════════════════════════════════════════
+   PAYMENT LOGIC
+   ══════════════════════════════════════════════ */
+
+/* Card formatters */
+function fmtCard(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 16);
+  input.value = v.replace(/(.{4})/g, '$1 ').trim();
+
+  const num = document.getElementById('pcpNumber');
+  if (num) num.textContent = input.value.padEnd(19, '•').replace(/\d(?=.{5})/g, (d, i) => i < 12 ? '•' : d) || '•••• •••• •••• ••••';
+
+  // Show full number on card preview while typing
+  const disp = input.value || '•••• •••• •••• ••••';
+  if (num) num.textContent = disp.length < 19 ? disp + ' ••••'.slice(0, 19 - disp.length) : disp;
+
+  // Detect card type
+  const logo = document.getElementById('pcpLogo');
+  if (logo) {
+    const first = v[0];
+    if (first === '4') logo.textContent = 'VISA';
+    else if (first === '5' || first === '2') logo.textContent = 'MC';
+    else if (first === '2') logo.textContent = 'МИР';
+    else logo.textContent = '';
+  }
+}
+
+function fmtExpiry(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 2) v = v.slice(0, 2) + '/' + v.slice(2);
+  input.value = v;
+  const el = document.getElementById('pcpExpiry');
+  if (el) el.textContent = v || 'ММ/ГГ';
+}
+
+function fmtCVV(input) {
+  input.value = input.value.replace(/\D/g, '').slice(0, 3);
+}
+
+function fmtName(input) {
+  input.value = input.value.toUpperCase().replace(/[^A-ZА-ЯЁ\s]/gi, '');
+  const el = document.getElementById('pcpHolder');
+  if (el) el.textContent = input.value || 'ИМЯ ФАМИЛИЯ';
+}
+
+/* Validate card fields */
+function validateCard() {
+  const num    = document.getElementById('payCardNum')?.value.replace(/\s/g,'') || '';
+  const expiry = document.getElementById('payExpiry')?.value || '';
+  const cvv    = document.getElementById('payCVV')?.value || '';
+  if (num.length < 16)   { shakeField('payCardNum'); showToast('Введите номер карты', 'error'); return false; }
+  if (expiry.length < 5) { shakeField('payExpiry');  showToast('Введите срок карты', 'error');  return false; }
+  if (cvv.length < 3)    { shakeField('payCVV');     showToast('Введите CVV', 'error');          return false; }
+  return true;
+}
+
+function shakeField(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'var(--red)';
+  el.style.animation = 'shake .35s ease';
+  setTimeout(() => { el.style.animation = ''; el.style.borderColor = ''; }, 400);
+  haptic('error');
+}
+
+/* Start payment flow */
+function startPayment() {
+  if (!validateCard()) return;
+  haptic('light');
+
+  // Grab params from current screen data attrs
+  const screen = router.currentScreen;
+  const service = screen?.querySelector('.pay-order-service')?.textContent || '';
+  const amount  = screen?.querySelector('.pay-order-price')?.textContent || '';
+  const img     = screen?.querySelector('.pay-order-img')?.style.backgroundImage.replace(/url\(['"]?|['"]?\)/g,'') || '';
+
+  router.push('payment-processing', { service, amount, img });
+  setTimeout(() => runPaymentSteps(service, amount), 120);
+}
+
+function runPaymentSteps(service, amount) {
+  const steps = [
+    { id: 'step1', title: 'Проверяем карту...',        icon: '💳', delay: 1200 },
+    { id: 'step2', title: 'Авторизация банка...',       icon: '🏦', delay: 1400 },
+    { id: 'step3', title: 'Подтверждение платежа...', icon: '🔐', delay: 1000 },
+  ];
+
+  let elapsed = 0;
+  steps.forEach((step, i) => {
+    setTimeout(() => {
+      const dot = document.getElementById(step.id);
+      if (dot) { dot.classList.add('pps-done'); dot.querySelector('.pps-dot').textContent = '✓'; }
+      const title = document.getElementById('payProcTitle');
+      const icon  = document.getElementById('payProcIcon');
+      if (title) title.textContent = step.title;
+      if (icon)  icon.textContent  = step.icon;
+      setCircleProgress((i + 1) / steps.length * 0.9);
+      haptic('selection');
+    }, elapsed);
+    elapsed += step.delay;
+  });
+
+  // Final success
+  setTimeout(() => {
+    setCircleProgress(1);
+    const icon  = document.getElementById('payProcIcon');
+    const title = document.getElementById('payProcTitle');
+    const sub   = document.getElementById('payProcSub');
+    const ring  = document.getElementById('payProcRing');
+    if (icon)  { icon.textContent = '✓'; icon.style.color = '#000'; }
+    if (title) title.textContent = 'Оплата прошла!';
+    if (sub)   sub.textContent   = amount + ' · списано с карты';
+    if (ring)  ring.classList.add('pay-proc-ring--success');
+    haptic('success');
+
+    setTimeout(() => {
+      // Pop processing screen, then show booking success
+      router.stacks[router.activeTab].pop(); // remove processing
+      router.push('booking-success', { service, paid: true, amount });
+    }, 1200);
+  }, elapsed);
+}
+
+function setCircleProgress(pct) {
+  const circle = document.getElementById('payProcCircle');
+  if (!circle) return;
+  const r = 34;
+  const circ = 2 * Math.PI * r;
+  circle.style.strokeDashoffset = circ * (1 - pct);
 }
 
 /* ── Copy promo ───────────────────────────────── */
