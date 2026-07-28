@@ -1,470 +1,1307 @@
 /* ═══════════════════════════════════════════════
-   MS Detailing Carbon — Telegram Mini App v2
+   MS Detailing Carbon — Native App v3
+   Router · 12 Screens · Swipe Gestures
    ═══════════════════════════════════════════════ */
 
-const TMA = (() => {
+/* ── Telegram ─────────────────────────────────── */
+const tg   = window.Telegram?.WebApp;
+const tgUser = tg?.initDataUnsafe?.user || null;
 
-  /* ── Telegram WebApp ─────────────────── */
-  const tg   = window.Telegram?.WebApp;
-  const user = tg?.initDataUnsafe?.user || null;
+/* ── Data ─────────────────────────────────────── */
+const SERVICES = [
+  {
+    id: 'complex',
+    name: 'Комплексный детейлинг',
+    short: 'Комплекс',
+    tag: 'Лучший выбор',
+    tagStyle: 'gold',
+    price: 'от 35 000 ₽',
+    time: '3–5 дней',
+    img: 'assets/gwagon-after.jpg',
+    desc: 'Полное преображение автомобиля: полировка ЛКП, нанесение керамического покрытия, профессиональная химчистка салона, обработка всех поверхностей. Результат — как у нового авто.',
+    includes: ['Машинная полировка кузова', 'Нанесение керамики 9H', 'Химчистка салона', 'Обработка резины и пластика', 'Полировка стёкол', 'Финальный инспекционный контроль'],
+    category: 'complex',
+    booking: 'Полный уход — Комплексный детейлинг (от 35 000 ₽)',
+  },
+  {
+    id: 'polish',
+    name: 'Полировка кузова',
+    short: 'Полировка',
+    tag: 'Популярно',
+    tagStyle: 'blue',
+    price: 'от 8 000 ₽',
+    time: '1–2 дня',
+    img: 'assets/polishing.jpg',
+    desc: 'Машинная полировка устраняет царапины от мойки, голограммы, потёртости. Восстанавливает зеркальный блеск и глубину цвета. Результат держится до 6 месяцев.',
+    includes: ['Стадийная полировка 2-3 прохода', 'Устранение голограмм', 'Устранение царапин до 1-й стадии', 'Нанесение финишного защитного воска', 'Полировка пластиковых элементов'],
+    category: 'gloss',
+    booking: 'Блеск — Полировка кузова (от 8 000 ₽)',
+  },
+  {
+    id: 'ceramic',
+    name: 'Керамическое покрытие',
+    short: 'Керамика',
+    tag: 'Защита',
+    tagStyle: 'green',
+    price: 'от 25 000 ₽',
+    time: '2–3 дня',
+    img: 'assets/ceramic-apply.jpg',
+    desc: 'Нанокерамика создаёт стеклоподобный защитный слой твёрдостью 9H. Гидрофобность, защита от UV, химии и мелких царапин. Гарантия блеска 3–5 лет.',
+    includes: ['Полировка перед нанесением', 'Обезжиривание ЛКП IPA', 'Нанесение керамики 9H (2 слоя)', 'Выдержка в инфракрасной кабине', 'Гидрофобная защита стёкол', 'Сертификат с гарантией'],
+    category: 'protection',
+    booking: 'Защита — Керамическое покрытие (от 25 000 ₽)',
+  },
+  {
+    id: 'ppf',
+    name: 'Бронирование PPF',
+    short: 'PPF',
+    tag: 'Броня',
+    tagStyle: 'dim',
+    price: 'от 15 000 ₽',
+    time: '2–5 дней',
+    img: 'assets/ppf-apply.jpg',
+    desc: 'Полиуретановая плёнка защищает кузов от сколов, царапин, реагентов. Самовосстанавливается при нагреве. Доступна прозрачная и цветная плёнка.',
+    includes: ['Предварительная полировка', 'Полиуретановая плёнка Llumar', 'Самовосстановление мелких царапин', 'Бесцветная или цветная версия', 'Защита порогов, капота, зеркал', 'Гарантия 3 года'],
+    category: 'protection',
+    booking: 'Защита — Бронирование PPF (от 15 000 ₽)',
+  },
+  {
+    id: 'cleaning',
+    name: 'Химчистка салона',
+    short: 'Химчистка',
+    tag: 'Салон',
+    tagStyle: 'dim',
+    price: 'от 6 000 ₽',
+    time: '1 день',
+    img: 'assets/bmw-interior-after.jpg',
+    desc: 'Профессиональная глубокая очистка всего салона: обивка, кожа, пластик, ковры, потолок. Устранение любых запахов (животные, курение, еда). Обработка кожи кондиционером.',
+    includes: ['Пароочистка всех поверхностей', 'Экстракторная чистка ковров', 'Очистка кожи и пластика', 'Полировка стёкол изнутри', 'Устранение запахов озоном', 'Обработка кожи кондиционером'],
+    category: 'interior',
+    booking: 'Химчистка салона (от 6 000 ₽)',
+  },
+  {
+    id: 'headlights',
+    name: 'Восстановление фар',
+    short: 'Фары',
+    tag: 'Быстро',
+    tagStyle: 'green',
+    price: 'от 3 000 ₽',
+    time: '2–4 часа',
+    img: 'assets/gwagon-front.jpg',
+    desc: 'Полировка и восстановление мутных, пожелтевших фар. Нанесение UV-защитного покрытия. Фары снова прозрачные — улучшается видимость и внешний вид.',
+    includes: ['Полировка фар (3 стадии)', 'Нанесение UV-лака', 'Герметизация поверхности', 'Результат на 2–3 года'],
+    category: 'express',
+    booking: 'Восстановление фар (от 3 000 ₽)',
+  },
+  {
+    id: 'tint',
+    name: 'Тонировка стёкол',
+    short: 'Тонировка',
+    tag: 'Стиль',
+    tagStyle: 'dim',
+    price: 'от 5 000 ₽',
+    time: '3–5 часов',
+    img: 'assets/gwagon-body.jpg',
+    desc: 'Оклейка стёкол плёнкой Llumar или SolarGard. Защита от UV, снижение нагрева, конфиденциальность. Затемнение 5–70%. Без пузырей и отслоений — гарантия.',
+    includes: ['Плёнки Llumar / SolarGard', 'Затемнение от 5% до 70%', 'Защита UV 99%', 'Снижение нагрева до 60%', 'Монтаж без пузырей', 'Гарантия 2 года'],
+    category: 'style',
+    booking: 'Тонировка стёкол (от 5 000 ₽)',
+  },
+];
 
-  /* ── Navigation history ──────────────── */
-  let history = ['home'];
+const REVIEWS = [
+  { name: 'Александр М.', initials: 'АМ', stars: 5, date: '14 июля 2025', service: 'Керамическое покрытие', text: 'Сдал BMW X5 на керамику — результат превзошёл ожидания. Машина блестит как зеркало, вода скатывается шариками. Мастера профессиональные, всё сделали в срок.' },
+  { name: 'Эльвира Р.', initials: 'ЭР', stars: 5, date: '2 июля 2025', service: 'Химчистка салона', text: 'Привезла Cayenne после 5 лет эксплуатации — запах сигарет и потёртая кожа. Вернули мне машину как из салона. Отдельное спасибо за озонирование — ни следа от запаха!' },
+  { name: 'Тимур К.', initials: 'ТК', stars: 5, date: '20 июня 2025', service: 'Комплексный детейлинг', text: 'Сделал полный комплекс на G-Wagon перед продажей. Цену на машину поднял на 200 тысяч — окупилось с лихвой. Рекомендую всем, кто хочет продать авто дороже.' },
+  { name: 'Диана С.', initials: 'ДС', stars: 5, date: '8 июня 2025', service: 'Полировка + PPF', text: 'Сначала скептически отнеслась к цене, но после результата поняла — оно того стоит. Царапины исчезли, плёнка практически незаметна. Теперь не боюсь парковок!' },
+  { name: 'Игорь В.', initials: 'ИВ', stars: 5, date: '25 мая 2025', service: 'Восстановление фар', text: 'За 2.5 часа полностью восстановили фары на Lexus — как новые! Цена смешная за такое качество. Буду делать каждый год теперь.' },
+];
 
-  /* ── Storage ─────────────────────────── */
-  const STORAGE = 'msdc_v2';
-  const loadBookings = () => { try { return JSON.parse(localStorage.getItem(STORAGE)) || []; } catch { return []; } };
-  const saveBooking  = b  => {
-    const list = loadBookings();
-    list.unshift(b);
-    localStorage.setItem(STORAGE, JSON.stringify(list.slice(0, 50)));
+const GALLERY_ITEMS = [
+  { before: 'assets/gwagon-body.jpg', after: 'assets/gwagon-after.jpg', service: 'Полировка + Керамика', car: 'Mercedes G-Wagon' },
+  { before: 'assets/gwagon-front.jpg', after: 'assets/gwagon-body.jpg', service: 'PPF бронирование', car: 'BMW X5' },
+  { before: 'assets/gwagon-door-open.jpg', after: 'assets/gwagon-interior.jpg', service: 'Химчистка салона', car: 'Porsche Cayenne' },
+  { before: 'assets/gwagon-body.jpg', after: 'assets/ceramic-apply.jpg', service: 'Керамическое покрытие', car: 'Range Rover' },
+];
+
+const STORAGE_KEY = 'msdc_v3';
+const loadBookings = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } };
+const saveBooking  = b => {
+  const list = loadBookings();
+  list.unshift(b);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
+};
+
+/* ── Router ───────────────────────────────────── */
+class Router {
+  constructor() {
+    this.tabs = ['home', 'services', 'tryon', 'profile'];
+    this.activeTab = 'home';
+    this.stacks = { home: [], services: [], tryon: [], profile: [] };
+    this.currentScreen = null;
+    this.isAnimating = false;
+  }
+
+  init() {
+    this.push('home', {}, 'tab');
+  }
+
+  push(name, params = {}, type = 'push') {
+    if (this.isAnimating) return;
+
+    const tabForScreen = this._tabFor(name);
+    const isTabSwitch = type === 'tab' || (tabForScreen && tabForScreen !== this.activeTab);
+
+    if (isTabSwitch) {
+      this.activeTab = tabForScreen || this.activeTab;
+      this.stacks[this.activeTab] = [{ name, params }];
+    } else {
+      this.stacks[this.activeTab].push({ name, params });
+    }
+
+    this._render(isTabSwitch ? 'tab' : 'push');
+    this._updateTabBar();
+  }
+
+  pop() {
+    const stack = this.stacks[this.activeTab];
+    if (stack.length <= 1) return false;
+    stack.pop();
+    this._render('pop');
+    this._updateTabBar();
+    return true;
+  }
+
+  switchTab(tab) {
+    if (tab === this.activeTab) {
+      // Scroll to top of current tab
+      this.stacks[tab] = [this.stacks[tab][0]];
+      this._render('tab');
+      return;
+    }
+    this.activeTab = tab;
+    if (!this.stacks[tab].length) {
+      this.stacks[tab] = [{ name: tab, params: {} }];
+    }
+    this._render('tab');
+    this._updateTabBar();
+  }
+
+  _tabFor(name) {
+    if (['home'].includes(name)) return 'home';
+    if (['services', 'service-detail'].includes(name)) return 'services';
+    if (['tryon'].includes(name)) return 'tryon';
+    if (['profile', 'promo'].includes(name)) return 'profile';
+    return null;
+  }
+
+  _currentEntry() {
+    const stack = this.stacks[this.activeTab];
+    return stack[stack.length - 1] || { name: 'home', params: {} };
+  }
+
+  _render(transition) {
+    const entry = this._currentEntry();
+    const el = buildScreen(entry.name, entry.params);
+
+    const root = document.getElementById('screen-root');
+    const old  = this.currentScreen;
+
+    if (old) {
+      const exitClass = transition === 'pop'  ? 'screen--pop-exit'
+                      : transition === 'tab'  ? 'screen--tab-exit'
+                      : 'screen--push-exit';
+      old.classList.add(exitClass);
+      old.addEventListener('animationend', () => old.remove(), { once: true });
+      setTimeout(() => { if (old.parentNode) old.remove(); }, 400);
+    }
+
+    root.appendChild(el);
+    this.isAnimating = true;
+    setTimeout(() => { this.isAnimating = false; }, 360);
+
+    if (old) {
+      const enterClass = transition === 'pop'  ? 'screen--pop-enter'
+                       : transition === 'tab'  ? 'screen--tab-enter'
+                       : 'screen--push-enter';
+      el.classList.add(enterClass);
+      el.addEventListener('animationend', () => el.classList.remove(enterClass), { once: true });
+    }
+
+    this.currentScreen = el;
+
+    // Telegram back button
+    if (tg) {
+      const stack = this.stacks[this.activeTab];
+      if (stack.length > 1) { tg.BackButton.show(); tg.BackButton.onClick(() => router.pop()); }
+      else tg.BackButton.hide();
+    }
+
+    afterRender(entry.name, entry.params, el);
+  }
+
+  _updateTabBar() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.toggle('tab-btn--active', btn.dataset.tab === this.activeTab);
+    });
+  }
+
+  canPop() {
+    return this.stacks[this.activeTab].length > 1;
+  }
+}
+
+const router = new Router();
+
+/* ── Swipe-back gesture ───────────────────────── */
+class SwipeBack {
+  constructor() {
+    this.startX = 0;
+    this.startY = 0;
+    this.active = false;
+    this.el = null;
+
+    const root = document.getElementById('screen-root');
+    root.addEventListener('touchstart',  this.onStart.bind(this), { passive: true });
+    root.addEventListener('touchmove',   this.onMove.bind(this),  { passive: false });
+    root.addEventListener('touchend',    this.onEnd.bind(this),   { passive: true });
+    root.addEventListener('touchcancel', this.onEnd.bind(this),   { passive: true });
+  }
+
+  onStart(e) {
+    const t = e.touches[0];
+    this.startX = t.clientX;
+    this.startY = t.clientY;
+    this.active = t.clientX < 28 && router.canPop();
+    this.el = router.currentScreen;
+  }
+
+  onMove(e) {
+    if (!this.active || !this.el) return;
+    const dx = e.touches[0].clientX - this.startX;
+    const dy = e.touches[0].clientY - this.startY;
+    if (Math.abs(dy) > Math.abs(dx) * 1.8) { this.active = false; return; }
+    e.preventDefault();
+    const clamped = Math.max(0, dx);
+    this.el.classList.add('screen--dragging');
+    this.el.style.transform = `translateX(${clamped}px)`;
+    this.el.style.boxShadow = clamped > 0 ? `-8px 0 32px rgba(0,0,0,.4)` : '';
+  }
+
+  onEnd(e) {
+    if (!this.active || !this.el) return;
+    const dx = (e.changedTouches[0]?.clientX || this.startX) - this.startX;
+    this.el.classList.remove('screen--dragging');
+    this.el.style.transform = '';
+    this.el.style.boxShadow = '';
+    if (dx > 90) {
+      router.pop();
+      haptic('light');
+    }
+    this.active = false;
+    this.el = null;
+  }
+}
+
+/* ── Haptic ───────────────────────────────────── */
+function haptic(type) {
+  if (!tg?.HapticFeedback) return;
+  try {
+    if (type === 'success' || type === 'error') tg.HapticFeedback.notificationOccurred(type);
+    else if (type === 'selection') tg.HapticFeedback.selectionChanged();
+    else tg.HapticFeedback.impactOccurred(type || 'light');
+  } catch {}
+}
+
+/* ── Toast ────────────────────────────────────── */
+function showToast(msg, type = '') {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const el = document.createElement('div');
+  el.className = `toast toast--${type}`;
+  el.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '⚠' : 'ℹ'}</span> ${msg}`;
+  document.body.appendChild(el);
+  el.addEventListener('animationend', () => { if (el.classList.contains('toast')) el.remove(); }, { once: true });
+  setTimeout(() => el.remove(), 2800);
+}
+
+/* ── Screen builder ───────────────────────────── */
+function buildScreen(name, params) {
+  const el = document.createElement('div');
+  el.className = 'screen';
+  el.dataset.screen = name;
+
+  const renderers = {
+    home:            renderHome,
+    services:        renderServices,
+    'service-detail': renderServiceDetail,
+    booking:         renderBooking,
+    'booking-success': renderBookingSuccess,
+    tryon:           renderTryOn,
+    studio:          renderStudio,
+    gallery:         renderGallery,
+    reviews:         renderReviews,
+    about:           renderAbout,
+    profile:         renderProfile,
+    promo:           renderPromo,
   };
 
-  /* ── Try-On state ─────────────────────── */
-  let tryonImg       = null;
-  let tryonTreatment = 'original';
-  let tryonColor     = 'none';
+  el.innerHTML = (renderers[name] || renderHome)(params);
+  return el;
+}
 
-  /* ── Treatments ───────────────────────── */
-  const TREATMENTS = {
-    original: {
-      label:  'Оригинал',
-      filter: 'none',
-      color:  null, opacity: 0,
-      desc:   'Исходное состояние автомобиля без каких-либо обработок.',
-      cta:    false,
-    },
-    polish: {
-      label:  'Полировка',
-      filter: 'contrast(1.14) saturate(1.4) brightness(1.09)',
-      color:  null, opacity: 0,
-      desc:   '✨ После полировки ЛКП приобретает зеркальный блеск. Убираются царапины от мойки, голограммы, потёртости. Цвет становится глубже и насыщеннее — как у нового автомобиля.',
-      cta:    'Записаться на полировку',
-    },
-    ceramic: {
-      label:  'Керамика',
-      filter: 'contrast(1.2) saturate(1.45) brightness(1.14)',
-      color:  '#ffffff', opacity: 0.07,
-      desc:   '🛡️ Керамическое покрытие создаёт защитный нанослой. Вода скатывается каплями, грязь не прилипает. Блеск усиливается, цвет становится глубже. Защита на 3–5 лет.',
-      cta:    'Записаться на керамику',
-    },
-    ppf: {
-      label:  'PPF плёнка',
-      filter: 'contrast(1.06) saturate(1.12)',
-      color:  null, opacity: 0,
-      desc:   '🏎️ Полиуретановая плёнка защищает от камней, сколов и царапин. Доступна прозрачная (сохраняет цвет) или цветная (смена цвета кузова). Самовосстановление мелких царапин.',
-      cta:    'Записаться на PPF',
-    },
-    tint: {
-      label:  'Тонировка',
-      filter: 'contrast(1.04) brightness(0.94)',
-      color:  '#0a0a0a', opacity: 0.22,
-      desc:   '🪟 Плёнка на стёклах: защита от UV и нагрева, стильный вид. Затемнение от 5% до 70%. Плёнки Llumar и SolarGard — длительная гарантия без пузырей и отслоений.',
-      cta:    'Записаться на тонировку',
-    },
-  };
+/* ══════════════════════════════════════════════
+   SCREEN RENDERERS
+   ══════════════════════════════════════════════ */
 
-  /* ══════════════════════════════════════
-     INIT
-     ══════════════════════════════════════ */
-  function init() {
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      try { tg.setHeaderColor('#131316'); } catch {}
-      try { tg.setBackgroundColor('#131316'); } catch {}
-    }
-    setupUser();
-    setupBookingForm();
-    setupPhotoPreview();
-  }
+/* ── HOME ─────────────────────────────────────── */
+function renderHome() {
+  const name   = tgUser ? tgUser.first_name : null;
+  const inits  = tgUser ? ((tgUser.first_name||'')[0]||'') + ((tgUser.last_name||'')[0]||'') : '';
+  const full   = tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : '';
 
-  /* ── User ────────────────────────────── */
-  function setupUser() {
-    if (!user) return;
-    const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ');
-    const initials = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
+  const greetingBar = tgUser ? `
+    <div class="greeting-bar">
+      <div class="greeting-bar__avatar">${inits || '👤'}</div>
+      <div class="greeting-bar__text">
+        <div class="greeting-bar__name">Привет, ${name}! 👋</div>
+        <div class="greeting-bar__sub">Telegram подтверждён ✓</div>
+      </div>
+      <div class="greeting-bar__vip">VIP</div>
+    </div>` : '';
 
-    /* Home banner */
-    const banner = document.getElementById('userBanner');
-    if (banner) {
-      banner.style.display = 'flex';
-      const av = document.getElementById('ubAvatar');
-      const nm = document.getElementById('ubName');
-      if (av) av.textContent = initials || '👤';
-      if (nm) nm.textContent = `Привет, ${user.first_name || 'друг'}!`;
-    }
+  const popular = SERVICES.slice(0, 4).map(s => `
+    <div class="promo-card" onclick="router.push('service-detail',{id:'${s.id}'})">
+      <div class="promo-card__img" style="background-image:url('${s.img}')"></div>
+      <div class="promo-card__body">
+        <div class="promo-card__tag">${s.tag}</div>
+        <div class="promo-card__name">${s.short}</div>
+        <div class="promo-card__price">${s.price}</div>
+      </div>
+    </div>`).join('');
 
-    /* Booking user card */
-    const card = document.getElementById('bookingUserCard');
-    if (card) {
-      card.style.display = 'flex';
-      const av2 = document.getElementById('bucAvatar');
-      const nm2 = document.getElementById('bucName');
-      if (av2) av2.textContent = initials || '👤';
-      if (nm2) nm2.textContent = fullName;
-    }
+  return `
+    <div class="screen-body">
+      <div class="home-hero">
+        <div class="home-hero__bg" id="heroBg" style="background-image:url('assets/gwagon-front.jpg')"></div>
+        <div class="home-hero__grad"></div>
+        <div class="home-hero__content">
+          <div class="home-hero__badge">✦ Казань · Премиум детейлинг</div>
+          <div class="home-hero__title">MS Detailing<br>Carbon</div>
+          <div class="home-hero__sub">Щербаковский пер., 7 · Пн–Сб 9:00–20:00</div>
+        </div>
+      </div>
 
-    /* Pre-fill name; hide phone field */
-    const bName = document.getElementById('bName');
-    if (bName && fullName) bName.value = fullName;
-    const grpPhone = document.getElementById('bfGroupPhone');
-    if (grpPhone) grpPhone.style.display = 'none';
-  }
+      ${greetingBar}
 
-  /* ══════════════════════════════════════
-     NAVIGATION
-     ══════════════════════════════════════ */
-  function goTo(tab) {
-    const current = history[history.length - 1];
-    if (current === tab) return;
+      <div class="quick-grid">
+        <button class="quick-btn quick-btn--primary" onclick="router.push('booking',{})">
+          <div class="quick-btn__icon">📋</div>
+          <div class="quick-btn__label">Записаться</div>
+          <div class="quick-btn__sub">Ответим за 15 мин</div>
+        </button>
+        <button class="quick-btn" onclick="router.push('services',{})">
+          <div class="quick-btn__icon">💎</div>
+          <div class="quick-btn__label">Услуги и цены</div>
+          <div class="quick-btn__sub">7 направлений</div>
+        </button>
+        <button class="quick-btn" onclick="router.push('gallery',{})">
+          <div class="quick-btn__icon">📸</div>
+          <div class="quick-btn__label">Галерея работ</div>
+          <div class="quick-btn__sub">До и после</div>
+        </button>
+        <button class="quick-btn" onclick="router.push('reviews',{})">
+          <div class="quick-btn__icon">⭐</div>
+          <div class="quick-btn__label">Отзывы</div>
+          <div class="quick-btn__sub">★ 5.0 · 200+ клиентов</div>
+        </button>
+      </div>
 
-    /* Hide current */
-    const old = document.getElementById('screen-' + current);
-    if (old) { old.classList.remove('active'); }
+      <div class="section-title">Популярные услуги</div>
+      <div class="hscroll">${popular}</div>
 
-    /* Show new */
-    const next = document.getElementById('screen-' + tab);
-    if (next) {
-      next.classList.add('active', 'slide-in');
-      next.addEventListener('animationend', () => next.classList.remove('slide-in'), { once: true });
-    }
+      <div class="stats-strip">
+        <div class="stat-cell">
+          <div class="stat-cell__num">7</div>
+          <div class="stat-cell__lbl">лет опыта</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell__num">1200<sup style="font-size:14px">+</sup></div>
+          <div class="stat-cell__lbl">автомобилей</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell__num">★ 5.0</div>
+          <div class="stat-cell__lbl">оценка</div>
+        </div>
+      </div>
 
-    /* Nav tabs */
-    document.querySelectorAll('.bn-btn[data-tab]').forEach(b => {
-      b.classList.toggle('active', b.dataset.tab === tab);
-    });
+      <div class="section-title">О студии</div>
+      <div class="info-cards">
+        <div class="info-card" onclick="router.push('about',{})">
+          <div class="info-card__icon">🏆</div>
+          <div class="info-card__title">Наша история</div>
+          <div class="info-card__sub">7 лет в детейлинге</div>
+        </div>
+        <div class="info-card" onclick="router.push('studio',{})">
+          <div class="info-card__icon">🎨</div>
+          <div class="info-card__title">Студия</div>
+          <div class="info-card__sub">Оборудование</div>
+        </div>
+      </div>
 
-    history.push(tab);
+      <div class="section-title">Контакты</div>
+      <div class="contacts-block" style="margin:0 16px 24px">
+        <a href="tel:+79991576971" class="contact-row">
+          <div class="contact-row__icon">📞</div>
+          <div class="contact-row__body">
+            <div class="contact-row__label">Телефон</div>
+            <div class="contact-row__val">+7 (999) 157-69-71</div>
+          </div>
+          <div class="contact-row__arrow">›</div>
+        </a>
+        <a href="https://yandex.ru/maps/?pt=49.1064,55.7960&z=16" target="_blank" class="contact-row">
+          <div class="contact-row__icon">📍</div>
+          <div class="contact-row__body">
+            <div class="contact-row__label">Адрес</div>
+            <div class="contact-row__val">Щербаковский пер., 7, Казань</div>
+          </div>
+          <div class="contact-row__arrow">›</div>
+        </a>
+        <div class="contact-row">
+          <div class="contact-row__icon">🕐</div>
+          <div class="contact-row__body">
+            <div class="contact-row__label">Режим работы</div>
+            <div class="contact-row__val">Пн–Сб: 9:00–20:00</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
 
-    /* Telegram back button */
-    if (tg) {
-      if (history.length > 1) tg.BackButton.show();
-      else                     tg.BackButton.hide();
-      tg.BackButton.onClick(goBack);
-    }
+/* ── SERVICES ─────────────────────────────────── */
+function renderServices() {
+  const cards = SERVICES.map(s => `
+    <div class="service-card" onclick="router.push('service-detail',{id:'${s.id}'})">
+      <div class="service-card__img" style="background-image:url('${s.img}')"></div>
+      <div class="service-card__body">
+        <div class="service-card__name">${s.name}</div>
+        <div class="service-card__desc">${s.desc}</div>
+        <div class="service-card__footer">
+          <span class="service-card__price">${s.price}</span>
+          <span class="service-card__time">⏱ ${s.time}</span>
+        </div>
+      </div>
+      <div class="service-card__arrow">›</div>
+    </div>`).join('');
 
-    /* Cabinet: render on open */
-    if (tab === 'cabinet') renderCabinet();
+  const filterMap = [
+    { id: 'all', label: 'Все' },
+    { id: 'protection', label: '🛡 Защита' },
+    { id: 'gloss', label: '✨ Блеск' },
+    { id: 'interior', label: '🪑 Салон' },
+    { id: 'express', label: '⚡ Экспресс' },
+  ];
+  const chips = filterMap.map(f => `
+    <button class="filter-chip ${f.id==='all'?'filter-chip--active':''}" data-filter="${f.id}"
+      onclick="filterServices(this,'${f.id}')">${f.label}</button>`).join('');
 
-    haptic('light');
-  }
+  return `
+    <div class="nav-header">
+      <div class="nav-header__title">Услуги и цены</div>
+    </div>
+    <div class="filter-row">${chips}</div>
+    <div class="screen-body" id="servicesList">
+      ${cards}
+      <div style="height:8px"></div>
+    </div>`;
+}
 
-  function goBack() {
-    if (history.length <= 1) return;
-    history.pop();
-    const prev = history[history.length - 1];
-    const current = document.querySelector('.screen.active');
-    if (current) current.classList.remove('active');
+/* ── SERVICE DETAIL ───────────────────────────── */
+function renderServiceDetail({ id } = {}) {
+  const s = SERVICES.find(x => x.id === id) || SERVICES[0];
+  const tagColors = { gold: 'badge--gold', blue: 'badge--blue', green: 'badge--green', dim: 'badge--dim' };
+  const includes = s.includes.map(i => `
+    <div class="includes-item">
+      <div class="includes-item__check">✓</div>
+      ${i}
+    </div>`).join('');
 
-    const target = document.getElementById('screen-' + prev);
-    if (target) target.classList.add('active');
+  return `
+    <div class="detail-hero">
+      <div style="position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('${s.img}')"></div>
+      <div class="detail-hero__grad"></div>
+      <button class="detail-hero__back" onclick="router.pop()">‹</button>
+      <div class="detail-hero__badge">
+        <span class="badge ${tagColors[s.tagStyle]||'badge--dim'}">${s.tag}</span>
+      </div>
+      <div class="detail-hero__price">${s.price}</div>
+    </div>
+    <div class="screen-body">
+      <div class="detail-name">${s.name}</div>
+      <div class="detail-meta">
+        <span class="badge badge--dim">⏱ ${s.time}</span>
+        <span class="badge badge--gold">✦ Гарантия качества</span>
+      </div>
+      <p class="detail-desc">${s.desc}</p>
 
-    document.querySelectorAll('.bn-btn[data-tab]').forEach(b => {
-      b.classList.toggle('active', b.dataset.tab === prev);
-    });
+      <div class="section-title--sm" style="padding-top:0">Что включено</div>
+      <div class="includes-list">${includes}</div>
 
-    if (tg) {
-      if (history.length <= 1) tg.BackButton.hide();
-    }
-    haptic('light');
-  }
+      <div style="height:80px"></div>
+    </div>
+    <div class="detail-book-bar">
+      <button class="btn btn--gold" onclick="router.push('booking',{service:'${s.booking}',img:'${s.img}',name:'${s.name}',price:'${s.price}'})">
+        Записаться · ${s.price}
+      </button>
+    </div>`;
+}
 
-  function goToBooking(service) {
-    goTo('booking');
+/* ── BOOKING ──────────────────────────────────── */
+function renderBooking({ service = '', img = '', name: svcName = '', price = '' } = {}) {
+  const tgName = tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : '';
+  const tgInits = tgUser ? ((tgUser.first_name||'')[0]||'') + ((tgUser.last_name||'')[0]||'') : '';
+
+  const serviceHeader = svcName ? `
+    <div class="booking-header">
+      <div class="booking-header__service">
+        <div class="booking-header__img" style="background-image:url('${img}')"></div>
+        <div>
+          <div class="booking-header__name">${svcName}</div>
+          <div class="booking-header__price">${price}</div>
+        </div>
+      </div>
+    </div>` : `<div style="height:16px"></div>`;
+
+  const options = SERVICES.map(s =>
+    `<option value="${s.booking}" ${service === s.booking ? 'selected' : ''}>${s.name} — ${s.price}</option>`
+  ).join('');
+
+  const tgCard = tgUser ? `
+    <div style="display:flex;align-items:center;gap:12px;margin:0 16px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${tgInits||'👤'}</div>
+      <div>
+        <div style="font-size:14px;font-weight:700">${tgName}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">Telegram подтверждён ✓ · Телефон необязателен</div>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="nav-header">
+      <button class="nav-header__back" onclick="router.pop()">‹</button>
+      <div class="nav-header__title">Запись на услугу</div>
+    </div>
+    <div class="screen-body">
+      ${serviceHeader}
+      ${tgCard}
+
+      <form id="bookingForm" onsubmit="submitBooking(event)">
+        <div class="form-group">
+          <label class="form-label">Ваше имя</label>
+          <input class="form-input" type="text" id="bName" value="${tgName}" placeholder="Имя и фамилия" required>
+        </div>
+
+        <div class="form-group" ${tgUser ? 'style="display:none"' : ''} id="phoneGroup">
+          <label class="form-label">Телефон</label>
+          <input class="form-input" type="tel" id="bPhone" placeholder="+7 (___) ___-__-__">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Услуга</label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="bService">
+              <option value="">Выберите услугу...</option>
+              ${options}
+              <option value="Консультация — не знаю что нужно">Не знаю, нужна консультация</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Марка и модель автомобиля</label>
+          <input class="form-input" type="text" id="bCar" placeholder="Например: BMW X5 2020">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Пожелания <span style="color:var(--text3);font-size:11px;text-transform:none;letter-spacing:0">необязательно</span></label>
+          <textarea class="form-textarea" id="bComment" placeholder="Опишите состояние авто и что хотите получить в результате"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Фото <span style="color:var(--text3);font-size:11px;text-transform:none;letter-spacing:0">необязательно</span></label>
+          <input type="file" id="bPhotos" accept="image/*" multiple style="display:none">
+          <div class="photo-btn" onclick="document.getElementById('bPhotos').click()">
+            <span>📷</span> Прикрепить фото
+          </div>
+          <div class="photo-preview" id="photoPreview"></div>
+        </div>
+
+        <div style="padding:8px 16px 8px">
+          <button type="submit" class="btn btn--gold" id="bSubmit">
+            <span id="bSubmitText">Отправить заявку</span>
+          </button>
+          <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:8px">Ответим в течение 15 минут</p>
+        </div>
+
+        <div id="bResult" style="padding:0 16px 8px"></div>
+        <div style="height:16px"></div>
+      </form>
+    </div>`;
+}
+
+/* ── BOOKING SUCCESS ──────────────────────────── */
+function renderBookingSuccess({ service = '' } = {}) {
+  return `
+    <div class="success-screen">
+      <div class="success-checkmark">✓</div>
+      <div class="success-title">Заявка принята!</div>
+      <div class="success-sub">Наш мастер свяжется с вами в течение 15 минут и уточнит все детали.</div>
+      <div class="success-detail">
+        <div class="success-detail__row">
+          <span class="success-detail__label">Услуга</span>
+          <span class="success-detail__value">${service || 'Консультация'}</span>
+        </div>
+        <div class="success-detail__row">
+          <span class="success-detail__label">Время ответа</span>
+          <span class="success-detail__value">до 15 минут</span>
+        </div>
+        <div class="success-detail__row">
+          <span class="success-detail__label">Промокод</span>
+          <span class="success-detail__value" style="color:var(--gold)">CARBON25 = −25%</span>
+        </div>
+      </div>
+      <button class="btn btn--gold" style="max-width:280px" onclick="router.switchTab('home')">
+        На главную
+      </button>
+      <button class="btn btn--ghost" style="max-width:280px;margin-top:10px" onclick="router.push('booking',{})">
+        Ещё одна заявка
+      </button>
+    </div>`;
+}
+
+/* ── TRY-ON ───────────────────────────────────── */
+function renderTryOn() {
+  return `
+    <div class="nav-header">
+      <div class="nav-header__title">Примерка покрытия</div>
+    </div>
+    <div class="screen-body" id="tryonBody">
+      <div id="tryonUploadZone" class="tryon-upload" onclick="document.getElementById('tryonFile').click()">
+        <input type="file" id="tryonFile" accept="image/*" style="display:none">
+        <div class="tryon-upload__icon">🚗</div>
+        <div class="tryon-upload__title">Загрузите фото авто</div>
+        <div class="tryon-upload__hint">Сфотографируйте сбоку при хорошем освещении</div>
+        <button type="button" class="btn btn--outline btn--sm" style="margin-top:16px;width:auto;pointer-events:none">Выбрать фото</button>
+      </div>
+
+      <div id="tryonWorkspace" style="display:none">
+        <div class="tryon-canvas-wrap">
+          <canvas id="tryonCanvas"></canvas>
+          <div class="tryon-overlay" id="tryonOverlay"></div>
+          <div class="tryon-badge" id="tryonBadge">Оригинал</div>
+        </div>
+
+        <div class="section-title--sm">Покрытие</div>
+        <div class="treatment-grid">
+          <button class="treatment-btn treatment-btn--active" data-t="original" onclick="applyTreatment('original')">
+            <span class="treatment-btn__icon">📸</span>
+            <span class="treatment-btn__name">Оригинал</span>
+          </button>
+          <button class="treatment-btn" data-t="polish" onclick="applyTreatment('polish')">
+            <span class="treatment-btn__icon">✨</span>
+            <span class="treatment-btn__name">Полировка</span>
+          </button>
+          <button class="treatment-btn" data-t="ceramic" onclick="applyTreatment('ceramic')">
+            <span class="treatment-btn__icon">🛡️</span>
+            <span class="treatment-btn__name">Керамика</span>
+          </button>
+          <button class="treatment-btn" data-t="ppf" onclick="applyTreatment('ppf')">
+            <span class="treatment-btn__icon">🏎️</span>
+            <span class="treatment-btn__name">PPF</span>
+          </button>
+          <button class="treatment-btn" data-t="tint" onclick="applyTreatment('tint')">
+            <span class="treatment-btn__icon">🪟</span>
+            <span class="treatment-btn__name">Тонировка</span>
+          </button>
+        </div>
+
+        <div id="colorSection" style="display:none">
+          <div class="section-title--sm">Цвет плёнки</div>
+          <div class="color-strip" id="colorStrip">
+            <button class="color-swatch color-swatch--transparent color-swatch--active" data-color="none" onclick="setTryonColor('none')" title="Прозрачная"></button>
+            <button class="color-swatch" data-color="#0f0f0f" onclick="setTryonColor('#0f0f0f')" style="background:#0f0f0f" title="Чёрный"></button>
+            <button class="color-swatch" data-color="#f5f5f5" onclick="setTryonColor('#f5f5f5')" style="background:#f5f5f5;border:2px solid #555" title="Белый"></button>
+            <button class="color-swatch" data-color="#1e3a8a" onclick="setTryonColor('#1e3a8a')" style="background:#1e3a8a" title="Синий"></button>
+            <button class="color-swatch" data-color="#7f1d1d" onclick="setTryonColor('#7f1d1d')" style="background:#7f1d1d" title="Красный"></button>
+            <button class="color-swatch" data-color="#14532d" onclick="setTryonColor('#14532d')" style="background:#14532d" title="Зелёный"></button>
+            <button class="color-swatch" data-color="#4c1d95" onclick="setTryonColor('#4c1d95')" style="background:#4c1d95" title="Фиолетовый"></button>
+          </div>
+        </div>
+
+        <div class="treatment-desc" id="treatmentDesc"></div>
+
+        <div style="padding:16px" id="tryonBookBtn" style="display:none">
+          <button class="btn btn--gold" id="tryonCTA" onclick="">Записаться на эту услугу</button>
+        </div>
+
+        <div style="padding:0 16px 8px">
+          <button class="btn btn--ghost" onclick="resetTryon()">↩ Загрузить другое фото</button>
+        </div>
+        <div style="height:16px"></div>
+      </div>
+    </div>`;
+}
+
+/* ── STUDIO ───────────────────────────────────── */
+function renderStudio() {
+  return `
+    <div class="nav-header">
+      <div class="nav-header__title">Студия</div>
+    </div>
+    <div class="screen-body">
+      <div class="studio-hero">
+        <div class="studio-hero__imgs">
+          <div class="studio-hero__img" style="background-image:url('assets/gwagon-body.jpg')"></div>
+          <div class="studio-hero__img" style="background-image:url('assets/gwagon-front.jpg')"></div>
+        </div>
+        <div class="studio-hero__grad"></div>
+        <div class="studio-hero__logo">MS · DETAILING · CARBON</div>
+      </div>
+
+      <div class="section-title">О студии</div>
+      <div class="info-cards">
+        <div class="info-card" onclick="router.push('gallery',{})">
+          <div class="info-card__icon">📸</div>
+          <div class="info-card__title">Галерея работ</div>
+          <div class="info-card__sub">До и после</div>
+        </div>
+        <div class="info-card" onclick="router.push('reviews',{})">
+          <div class="info-card__icon">⭐</div>
+          <div class="info-card__title">Отзывы</div>
+          <div class="info-card__sub">★ 5.0</div>
+        </div>
+        <div class="info-card" onclick="router.push('about',{})">
+          <div class="info-card__icon">🏆</div>
+          <div class="info-card__title">О компании</div>
+          <div class="info-card__sub">История студии</div>
+        </div>
+        <div class="info-card" onclick="router.push('booking',{})">
+          <div class="info-card__icon">📋</div>
+          <div class="info-card__title">Записаться</div>
+          <div class="info-card__sub">Быстрая запись</div>
+        </div>
+      </div>
+
+      <div class="section-title">Оборудование</div>
+      <div style="margin:0 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+        ${[
+          ['🔬', 'Полировальные машинки Rupes', 'Профессиональные серии BigFoot'],
+          ['💧', 'Химия Koch Chemie', 'Немецкие профессиональные составы'],
+          ['☀️', 'Инфракрасная кабина', 'Для полимеризации керамики'],
+          ['🔦', 'LED инспекционные лампы', 'Panasonic · 5000+ люкс'],
+          ['🌡️', 'Климат-контроль', 'Поддержание +18–22°C круглый год'],
+        ].map(([icon, title, sub]) => `
+          <div class="list-row" style="cursor:default">
+            <div class="list-row__icon">${icon}</div>
+            <div class="list-row__body">
+              <div class="list-row__title">${title}</div>
+              <div class="list-row__sub">${sub}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div style="height:16px"></div>
+    </div>`;
+}
+
+/* ── GALLERY ──────────────────────────────────── */
+function renderGallery() {
+  const cards = GALLERY_ITEMS.map(g => `
+    <div class="ba-card">
+      <div class="ba-card__imgs">
+        <div class="ba-card__img" data-label="До" style="background-image:url('${g.before}')"></div>
+        <div class="ba-card__img" data-label="После" style="background-image:url('${g.after}')"></div>
+      </div>
+      <div class="ba-card__body">
+        <div class="ba-card__service">${g.service}</div>
+        <div class="ba-card__car">${g.car}</div>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="nav-header">
+      <button class="nav-header__back" onclick="router.pop()">‹</button>
+      <div class="nav-header__title">Галерея работ</div>
+    </div>
+    <div class="screen-body">
+      <div class="section-title--sm">До и после</div>
+      ${cards}
+      <div style="height:16px"></div>
+    </div>`;
+}
+
+/* ── REVIEWS ──────────────────────────────────── */
+function renderReviews() {
+  const cards = REVIEWS.map(r => `
+    <div class="review-card">
+      <div class="review-card__header">
+        <div class="review-card__avatar">${r.initials}</div>
+        <div>
+          <div class="review-card__name">${r.name}</div>
+          <div class="review-card__meta">
+            <span class="review-card__stars">★★★★★</span>
+            <span class="review-card__date">${r.date}</span>
+          </div>
+        </div>
+      </div>
+      <div class="review-card__text">"${r.text}"</div>
+      <div class="review-card__service">Услуга: ${r.service}</div>
+    </div>`).join('');
+
+  return `
+    <div class="nav-header">
+      <button class="nav-header__back" onclick="router.pop()">‹</button>
+      <div class="nav-header__title">Отзывы клиентов</div>
+    </div>
+    <div class="screen-body">
+      <div style="display:flex;align-items:center;gap:12px;margin:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px">
+        <div style="font-size:40px;font-weight:900;color:var(--gold);line-height:1">5.0</div>
+        <div>
+          <div style="color:var(--gold);font-size:20px;letter-spacing:2px">★★★★★</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px">200+ довольных клиентов</div>
+        </div>
+      </div>
+      ${cards}
+      <div style="padding:0 16px 8px">
+        <button class="btn btn--ghost" onclick="router.push('booking',{})">Стать следующим ✓</button>
+      </div>
+      <div style="height:16px"></div>
+    </div>`;
+}
+
+/* ── ABOUT ────────────────────────────────────── */
+function renderAbout() {
+  return `
+    <div class="nav-header">
+      <button class="nav-header__back" onclick="router.pop()">‹</button>
+      <div class="nav-header__title">О студии</div>
+    </div>
+    <div class="screen-body">
+      <div style="height:16px"></div>
+      <div class="about-section">
+        <p>MS Detailing Carbon — премиум-студия детейлинга в Казани. Работаем с 2018 года. За это время обработали более 1200 автомобилей разных марок и классов.</p>
+        <p>Мы специализируемся на защите и восстановлении лакокрасочных покрытий: полировка, нанокерамика, PPF-бронирование. Работаем только с профессиональными материалами: Koch Chemie, Rupes, Llumar, SolarGard.</p>
+        <p>Каждый автомобиль получает индивидуальный подход. Мы не торопимся — качество для нас важнее скорости.</p>
+      </div>
+
+      <div class="section-title">Сертификаты и партнёры</div>
+      <div class="cert-grid">
+        ${[
+          ['🏆', 'Koch Chemie', 'Авторизованный партнёр'],
+          ['🛡️', 'Llumar', 'Сертифицированный установщик'],
+          ['⭐', 'Rupes', 'Профессиональный дистрибьютор'],
+          ['✅', 'ISO 9001', 'Система менеджмента качества'],
+        ].map(([icon, name, sub]) => `
+          <div class="cert-card">
+            <div class="cert-card__icon">${icon}</div>
+            <div class="cert-card__name">${name}</div>
+            <div class="cert-card__sub">${sub}</div>
+          </div>`).join('')}
+      </div>
+
+      <div class="section-title">Команда</div>
+      <div style="margin:0 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+        ${[
+          ['🎯', 'Мухаммад', 'Основатель · Мастер полировки'],
+          ['🔬', 'Сергей', 'Керамика и PPF · 5 лет опыта'],
+          ['🪑', 'Айгуль', 'Химчистка салонов · Специалист по коже'],
+          ['📋', 'Алина', 'Менеджер · Консультации и запись'],
+        ].map(([icon, name, role]) => `
+          <div class="list-row" style="cursor:default">
+            <div class="list-row__icon">${icon}</div>
+            <div class="list-row__body">
+              <div class="list-row__title">${name}</div>
+              <div class="list-row__sub">${role}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <div style="padding:20px 16px">
+        <button class="btn btn--gold" onclick="router.push('booking',{})">Записаться на услугу</button>
+      </div>
+    </div>`;
+}
+
+/* ── PROFILE ──────────────────────────────────── */
+function renderProfile() {
+  const name   = tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : 'Гость';
+  const sub    = tgUser ? (tgUser.username ? '@' + tgUser.username : 'ID: ' + tgUser.id) : 'Откройте в Telegram боте';
+  const inits  = tgUser ? ((tgUser.first_name||'')[0]||'') + ((tgUser.last_name||'')[0]||'') : '👤';
+
+  const bookings = loadBookings();
+  const historyHtml = bookings.length ? bookings.slice(0, 5).map(b => `
+    <div class="history-card">
+      <div class="history-card__header">
+        <div class="history-card__service">${b.service}</div>
+        <div class="history-card__date">${b.date}</div>
+      </div>
+      ${b.comment ? `<div class="history-card__comment">${b.comment}</div>` : ''}
+      <div style="margin-top:8px"><span class="badge badge--green">${b.status}</span></div>
+    </div>`).join('') : `
+      <div class="empty-state">
+        <div class="empty-state__icon">📋</div>
+        <div class="empty-state__title">Заявок пока нет</div>
+        <div class="empty-state__sub">Запишитесь на услугу — история появится здесь</div>
+        <button class="btn btn--gold btn--sm" onclick="router.push('booking',{})">Записаться</button>
+      </div>`;
+
+  return `
+    <div class="nav-header">
+      <div class="nav-header__title">Профиль</div>
+      <button class="nav-header__action" onclick="router.push('promo',{})">🎁</button>
+    </div>
+    <div class="screen-body">
+      <div class="profile-hero">
+        <div class="profile-avatar">${inits}</div>
+        <div class="profile-name">${name}</div>
+        <div class="profile-sub">${sub}</div>
+      </div>
+
+      <div class="promo-banner" onclick="router.push('promo',{})">
+        <div class="promo-banner__icon">🎁</div>
+        <div>
+          <div class="promo-banner__code">CARBON25</div>
+          <div class="promo-banner__desc">Скидка 25% · Назовите мастеру</div>
+        </div>
+        <button class="promo-banner__copy" onclick="copyPromo(event)">Скопировать</button>
+      </div>
+
+      <div style="margin:0 16px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+        <div class="list-row" onclick="router.push('booking',{})">
+          <div class="list-row__icon">📋</div>
+          <div class="list-row__body"><div class="list-row__title">Записаться</div><div class="list-row__sub">Новая заявка</div></div>
+          <div class="list-row__right">›</div>
+        </div>
+        <div class="list-row" onclick="router.push('promo',{})">
+          <div class="list-row__icon">🏆</div>
+          <div class="list-row__body"><div class="list-row__title">Промокод и акции</div><div class="list-row__sub">CARBON25 · −25%</div></div>
+          <div class="list-row__right">›</div>
+        </div>
+        <div class="list-row" onclick="router.push('about',{})">
+          <div class="list-row__icon">ℹ️</div>
+          <div class="list-row__body"><div class="list-row__title">О студии</div><div class="list-row__sub">История, команда</div></div>
+          <div class="list-row__right">›</div>
+        </div>
+        <a href="tel:+79991576971" class="list-row" style="text-decoration:none;color:inherit">
+          <div class="list-row__icon">📞</div>
+          <div class="list-row__body"><div class="list-row__title">Позвонить</div><div class="list-row__sub">+7 (999) 157-69-71</div></div>
+          <div class="list-row__right">›</div>
+        </a>
+      </div>
+
+      <div class="section-title">История заявок</div>
+      ${historyHtml}
+      <div style="height:16px"></div>
+    </div>`;
+}
+
+/* ── PROMO ────────────────────────────────────── */
+function renderPromo() {
+  return `
+    <div class="nav-header">
+      <button class="nav-header__back" onclick="router.pop()">‹</button>
+      <div class="nav-header__title">Акции и промокод</div>
+    </div>
+    <div class="screen-body">
+      <div class="promo-big-code">CARBON25</div>
+      <div class="promo-discount">Скидка 25% на любую услугу</div>
+
+      <div style="padding:0 16px 16px">
+        <button class="btn btn--gold" onclick="copyPromo()">Скопировать промокод</button>
+      </div>
+
+      <div class="section-title--sm">Как воспользоваться</div>
+      <div class="promo-rules" style="margin:0 16px">
+        ${[
+          ['Запишитесь на услугу через приложение или по телефону'],
+          ['При записи или при приёмке авто назовите мастеру промокод CARBON25'],
+          ['Получите скидку 25% от стоимости любой услуги'],
+          ['Промокод действует для новых клиентов, 1 раз'],
+        ].map(([text], i) => `
+          <div class="promo-rule">
+            <div class="promo-rule__num">${i+1}</div>
+            <div class="promo-rule__text">${text}</div>
+          </div>`).join('')}
+      </div>
+
+      <div style="padding:20px 16px 8px">
+        <button class="btn btn--gold" onclick="router.push('booking',{})">
+          Записаться со скидкой 25%
+        </button>
+      </div>
+
+      <div class="section-title">Текущие акции</div>
+      <div style="margin:0 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+        ${[
+          ['🎁', 'Первый визит −25%', 'Промокод CARBON25 для новых клиентов'],
+          ['🏎️', 'Комплекс — скидка 10%', 'При записи на полный детейлинг'],
+          ['👥', 'Приведи друга', 'Скидка 5 000 ₽ за каждого рефераала'],
+        ].map(([icon, title, sub]) => `
+          <div class="list-row" style="cursor:default">
+            <div class="list-row__icon">${icon}</div>
+            <div class="list-row__body">
+              <div class="list-row__title">${title}</div>
+              <div class="list-row__sub">${sub}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div style="height:24px"></div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   AFTER-RENDER HOOKS (attach events after DOM)
+   ══════════════════════════════════════════════ */
+function afterRender(name, params, el) {
+  if (name === 'home') {
     setTimeout(() => {
-      const sel = document.getElementById('bService');
-      if (sel) sel.value = service;
+      const bg = el.querySelector('#heroBg');
+      if (bg) bg.classList.add('home-hero__bg--anim');
     }, 50);
   }
 
-  /* ══════════════════════════════════════
-     BOOKING FORM
-     ══════════════════════════════════════ */
-  function setupBookingForm() {
-    const form = document.getElementById('tmaBookingForm');
-    if (form) form.addEventListener('submit', e => { e.preventDefault(); submitBooking(); });
-  }
-
-  function setupPhotoPreview() {
-    const input   = document.getElementById('bPhotos');
-    const preview = document.getElementById('bPhotoPreview');
-    if (!input || !preview) return;
-    input.addEventListener('change', () => {
-      preview.innerHTML = '';
-      Array.from(input.files).slice(0, 5).forEach(f => {
-        const img = new Image();
-        img.src = URL.createObjectURL(f);
-        preview.appendChild(img);
-      });
-    });
-  }
-
-  /* alias called from inline onchange */
-  function onPhotoChange() {
-    setupPhotoPreview();
-    const input   = document.getElementById('bPhotos');
-    const preview = document.getElementById('bPhotoPreview');
-    if (!input || !preview) return;
-    preview.innerHTML = '';
-    Array.from(input.files).slice(0, 5).forEach(f => {
-      const img = new Image();
-      img.src = URL.createObjectURL(f);
-      preview.appendChild(img);
-    });
-  }
-
-  async function submitBooking() {
-    const btn     = document.getElementById('bSubmit');
-    const btnText = document.getElementById('bSubmitText');
-    const result  = document.getElementById('bResult');
-
-    btn.disabled = true;
-    btnText.textContent = 'Отправляем...';
-    result.className = 'bf-result';
-    result.textContent = '';
-
-    const name    = (document.getElementById('bName')?.value   || '').trim();
-    const phone   = (document.getElementById('bPhone')?.value  || '').trim();
-    const service = (document.getElementById('bService')?.value || '').trim();
-    const comment = (document.getElementById('bComment')?.value || '').trim();
-    const photos  = document.getElementById('bPhotos')?.files || [];
-
-    const tgLine = user
-      ? `Telegram: @${user.username || '—'} (ID ${user.id}, ${[user.first_name, user.last_name].filter(Boolean).join(' ')})`
-      : '';
-
-    const requestText = [service, comment, tgLine].filter(Boolean).join('\n');
-
-    const fd = new FormData();
-    fd.append('name',    name || (user ? [user.first_name, user.last_name].filter(Boolean).join(' ') : 'Не указано'));
-    fd.append('phone',   phone);
-    fd.append('request', requestText);
-    fd.append('source',  'telegram_mini_app');
-    for (const f of photos) fd.append('photos', f);
-
-    try {
-      const res  = await fetch('/submit', { method: 'POST', body: fd });
-      const data = await res.json();
-
-      if (data.ok) {
-        result.className = 'bf-result ok';
-        result.textContent = '✓ Заявка принята! Ответим в течение 15 минут.';
-        btnText.textContent = '✓ Отправлено';
-        haptic('success');
-
-        saveBooking({
-          id:      Date.now(),
-          service: service || 'Консультация',
-          comment,
-          date:    new Date().toLocaleDateString('ru-RU'),
-          status:  'Принята',
+  if (name === 'booking') {
+    const photos = el.querySelector('#bPhotos');
+    const preview = el.querySelector('#photoPreview');
+    if (photos && preview) {
+      photos.addEventListener('change', () => {
+        preview.innerHTML = '';
+        Array.from(photos.files).slice(0, 5).forEach(f => {
+          const img = new Image();
+          img.className = 'photo-thumb';
+          img.src = URL.createObjectURL(f);
+          preview.appendChild(img);
         });
-
-        if (tg) {
-          setTimeout(() => tg.showAlert('✓ Заявка принята!\n\nМастер свяжется с вами в течение 15 минут.'), 300);
-        }
-
-        setTimeout(() => {
-          document.getElementById('bService').value  = '';
-          document.getElementById('bComment').value  = '';
-          if (document.getElementById('bPhone')) document.getElementById('bPhone').value = '';
-          document.getElementById('bPhotos').value   = '';
-          document.getElementById('bPhotoPreview').innerHTML = '';
-          btnText.textContent = 'Отправить заявку';
-          btn.disabled        = false;
-          result.textContent  = '';
-          goTo('home');
-        }, 3200);
-
-      } else {
-        throw new Error(data.error || 'Ошибка сервера');
-      }
-    } catch (err) {
-      result.className = 'bf-result err';
-      result.textContent = '⚠ ' + (err.message || 'Попробуйте ещё раз');
-      btnText.textContent = 'Отправить заявку';
-      btn.disabled = false;
-      haptic('error');
+      });
     }
   }
 
-  /* ══════════════════════════════════════
-     TRY-ON
-     ══════════════════════════════════════ */
-  function tryOnLoad(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      tryonImg = new Image();
-      tryonImg.onload = () => {
-        document.getElementById('tryonUpload').style.display = 'none';
-        document.getElementById('tryonWorkspace').style.display = 'block';
-        applyTreatment('original');
-      };
-      tryonImg.src = e.target.result;
+  if (name === 'tryon') {
+    const fileInput = el.querySelector('#tryonFile');
+    if (fileInput) {
+      fileInput.addEventListener('change', e => loadTryonPhoto(e.target));
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   SERVICES FILTER
+   ══════════════════════════════════════════════ */
+function filterServices(btn, filter) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('filter-chip--active'));
+  btn.classList.add('filter-chip--active');
+  haptic('selection');
+
+  const list = document.getElementById('servicesList');
+  if (!list) return;
+
+  const cards = list.querySelectorAll('.service-card');
+  cards.forEach(card => {
+    const svcId = card.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+    const svc   = SERVICES.find(s => s.id === svcId);
+    if (!svc) return;
+    const show = filter === 'all' || svc.category === filter;
+    card.style.display = show ? 'flex' : 'none';
+  });
+}
+
+/* ══════════════════════════════════════════════
+   BOOKING FORM SUBMIT
+   ══════════════════════════════════════════════ */
+async function submitBooking(e) {
+  e.preventDefault();
+  const btn      = document.getElementById('bSubmit');
+  const btnText  = document.getElementById('bSubmitText');
+  const result   = document.getElementById('bResult');
+
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span>';
+
+  const name    = (document.getElementById('bName')?.value || '').trim();
+  const phone   = (document.getElementById('bPhone')?.value || '').trim();
+  const service = (document.getElementById('bService')?.value || '').trim();
+  const car     = (document.getElementById('bCar')?.value || '').trim();
+  const comment = (document.getElementById('bComment')?.value || '').trim();
+  const photos  = document.getElementById('bPhotos')?.files || [];
+
+  const tgLine = tgUser
+    ? `Telegram: @${tgUser.username || '—'} (ID ${tgUser.id}, ${[tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')})`
+    : '';
+
+  const requestText = [service, car ? `Авто: ${car}` : '', comment, tgLine].filter(Boolean).join('\n');
+
+  const fd = new FormData();
+  fd.append('name',    name || (tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : 'Не указано'));
+  fd.append('phone',   phone);
+  fd.append('request', requestText);
+  fd.append('source',  'tma_v3');
+  for (const f of photos) fd.append('photos', f);
+
+  try {
+    const res  = await fetch('/submit', { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (data.ok) {
+      haptic('success');
+      saveBooking({ id: Date.now(), service: service || 'Консультация', comment: car, date: new Date().toLocaleDateString('ru-RU'), status: 'Принята' });
+      router.push('booking-success', { service: service || 'Консультация' });
+    } else {
+      throw new Error(data.error || 'Ошибка сервера');
+    }
+  } catch (err) {
+    haptic('error');
+    result.innerHTML = `<div style="color:var(--red);font-size:14px;padding:4px 0">⚠ ${err.message || 'Попробуйте ещё раз'}</div>`;
+    btnText.textContent = 'Отправить заявку';
+    btn.disabled = false;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   TRY-ON LOGIC
+   ══════════════════════════════════════════════ */
+let tryonImg = null, tryonTreatment = 'original', tryonColor = 'none';
+
+const TREATMENTS = {
+  original: { label: 'Оригинал',   filter: 'none',                               color: null,      opacity: 0,    desc: 'Исходное состояние автомобиля без каких-либо обработок.',                                                                     cta: null },
+  polish:   { label: 'Полировка',  filter: 'contrast(1.14) saturate(1.4) brightness(1.09)', color: null, opacity: 0, desc: '✨ После полировки кузов приобретает зеркальный блеск. Царапины, голограммы, потёртости — уходят. Цвет становится глубже.', cta: 'polish' },
+  ceramic:  { label: 'Керамика',   filter: 'contrast(1.2) saturate(1.45) brightness(1.14)', color: '#fff', opacity: 0.07, desc: '🛡️ Нанокерамика создаёт защитный стеклоподобный слой. Гидрофобность, глубокий блеск, защита на 3–5 лет.',               cta: 'ceramic' },
+  ppf:      { label: 'PPF плёнка', filter: 'contrast(1.06) saturate(1.12)',       color: null,      opacity: 0,    desc: '🏎️ Полиуретановая плёнка от сколов и царапин. Выберите цвет плёнки ниже — или прозрачную для сохранения цвета кузова.',      cta: 'ppf' },
+  tint:     { label: 'Тонировка',  filter: 'contrast(1.04) brightness(0.94)',     color: '#0a0a0a', opacity: 0.22, desc: '🪟 Плёнка на стёклах: защита от UV, снижение нагрева. Затемнение 5–70%. Плёнки Llumar и SolarGard.',                          cta: 'tint' },
+};
+
+function loadTryonPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    tryonImg = new Image();
+    tryonImg.onload = () => {
+      document.getElementById('tryonUploadZone').style.display = 'none';
+      document.getElementById('tryonWorkspace').style.display  = 'block';
+      applyTreatment('original');
     };
-    reader.readAsDataURL(file);
+    tryonImg.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyTreatment(t) {
+  if (!tryonImg) return;
+  tryonTreatment = t;
+  const cfg = TREATMENTS[t];
+  haptic('selection');
+
+  const canvas = document.getElementById('tryonCanvas');
+  if (!canvas) return;
+  const ctx  = canvas.getContext('2d');
+  const wrap = canvas.parentElement;
+  const maxW = wrap.clientWidth;
+  const ratio = tryonImg.naturalHeight / tryonImg.naturalWidth;
+  canvas.width  = Math.min(maxW * (window.devicePixelRatio || 1), 1400);
+  canvas.height = canvas.width * ratio;
+  canvas.style.width  = maxW + 'px';
+  canvas.style.height = (maxW * ratio) + 'px';
+  ctx.drawImage(tryonImg, 0, 0, canvas.width, canvas.height);
+  canvas.style.filter = cfg.filter;
+
+  const overlay = document.getElementById('tryonOverlay');
+  if (t === 'ppf' && tryonColor !== 'none') {
+    overlay.style.background = tryonColor;
+    overlay.style.opacity    = '0.42';
+  } else if (cfg.color) {
+    overlay.style.background = cfg.color;
+    overlay.style.opacity    = String(cfg.opacity);
+  } else {
+    overlay.style.opacity = '0';
   }
 
-  function applyTreatment(t) {
-    tryonTreatment = t;
-    const cfg = TREATMENTS[t];
+  const badge = document.getElementById('tryonBadge');
+  if (badge) badge.textContent = cfg.label;
+  const desc = document.getElementById('treatmentDesc');
+  if (desc) desc.textContent = cfg.desc;
 
-    /* Draw on canvas */
-    const canvas = document.getElementById('tryonCanvas');
-    const ctx    = canvas.getContext('2d');
-    const wrap   = canvas.parentElement;
-    const maxW   = wrap.clientWidth;
-    const ratio  = tryonImg.naturalHeight / tryonImg.naturalWidth;
-    canvas.width  = Math.min(maxW * window.devicePixelRatio, 1400);
-    canvas.height = canvas.width * ratio;
-    canvas.style.width  = maxW + 'px';
-    canvas.style.height = (maxW * ratio) + 'px';
-    ctx.drawImage(tryonImg, 0, 0, canvas.width, canvas.height);
+  const colorSec = document.getElementById('colorSection');
+  if (colorSec) colorSec.style.display = t === 'ppf' ? 'block' : 'none';
 
-    /* CSS filter */
-    canvas.style.filter = cfg.filter;
-
-    /* Colour overlay */
-    const overlay = document.getElementById('tryonOverlay');
-    if (t === 'ppf' && tryonColor !== 'none') {
-      overlay.style.background = tryonColor;
-      overlay.style.opacity    = '0.42';
-    } else if (cfg.color) {
-      overlay.style.background = cfg.color;
-      overlay.style.opacity    = String(cfg.opacity);
-    } else {
-      overlay.style.opacity = '0';
-    }
-
-    /* Badge */
-    document.getElementById('tryonBadge').textContent = cfg.label;
-
-    /* Description */
-    document.getElementById('treatmentDesc').textContent = cfg.desc;
-
-    /* Color picker — PPF only */
-    document.getElementById('colorSection').style.display = t === 'ppf' ? 'block' : 'none';
-
-    /* CTA */
-    const actions = document.getElementById('tryonActions');
-    if (cfg.cta) {
-      actions.style.display = 'block';
-      actions.querySelector('button').textContent = cfg.cta + ' →';
-    } else {
-      actions.style.display = 'none';
-    }
-
-    /* Tab highlight */
-    document.querySelectorAll('.tg-btn').forEach(b => b.classList.toggle('active', b.dataset.t === t));
-
-    haptic('selection');
+  const cta = document.getElementById('tryonCTA');
+  const ctaWrap = document.getElementById('tryonBookBtn');
+  if (cfg.cta && cta && ctaWrap) {
+    const svc = SERVICES.find(s => s.id === cfg.cta);
+    cta.onclick = () => router.push('service-detail', { id: cfg.cta });
+    ctaWrap.style.display = 'block';
+    cta.textContent = `Записаться на ${svc?.short || cfg.cta} →`;
+  } else if (ctaWrap) {
+    ctaWrap.style.display = 'none';
   }
 
-  function setColor(color) {
-    tryonColor = color;
-    document.querySelectorAll('.cr-swatch').forEach(s => s.classList.toggle('active', s.dataset.color === color));
-    const overlay = document.getElementById('tryonOverlay');
-    if (color === 'none') {
-      overlay.style.opacity = '0';
-    } else {
-      overlay.style.background = color;
-      overlay.style.opacity    = '0.42';
-    }
-    haptic('selection');
+  document.querySelectorAll('.treatment-btn').forEach(b =>
+    b.classList.toggle('treatment-btn--active', b.dataset.t === t)
+  );
+}
+
+function setTryonColor(color) {
+  tryonColor = color;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('color-swatch--active', s.dataset.color === color));
+  haptic('selection');
+  const overlay = document.getElementById('tryonOverlay');
+  if (color === 'none') { overlay.style.opacity = '0'; }
+  else { overlay.style.background = color; overlay.style.opacity = '0.42'; }
+}
+
+function resetTryon() {
+  tryonImg = null; tryonTreatment = 'original'; tryonColor = 'none';
+  const up = document.getElementById('tryonUploadZone');
+  const ws = document.getElementById('tryonWorkspace');
+  const fi = document.getElementById('tryonFile');
+  if (up) up.style.display = 'flex';
+  if (ws) ws.style.display = 'none';
+  if (fi) fi.value = '';
+}
+
+/* ── Copy promo ───────────────────────────────── */
+function copyPromo(e) {
+  if (e) e.stopPropagation();
+  navigator.clipboard?.writeText('CARBON25').then(() => {
+    showToast('Промокод скопирован!', 'success');
+    haptic('success');
+  }).catch(() => showToast('CARBON25', ''));
+}
+
+/* ─── Tab bar ─────────────────────────────────── */
+function buildTabBar() {
+  const tabs = [
+    { id: 'home',     label: 'Главная',  icon: '🏠' },
+    { id: 'services', label: 'Услуги',   icon: '💎' },
+    { id: 'tryon',    label: 'Примерка', icon: '🎨' },
+    { id: 'profile',  label: 'Профиль',  icon: '👤' },
+  ];
+  const nav = document.getElementById('tab-bar');
+  nav.innerHTML = tabs.map(t => `
+    <button class="tab-btn ${t.id === 'home' ? 'tab-btn--active' : ''}" data-tab="${t.id}"
+      onclick="router.switchTab('${t.id}');haptic('selection')">
+      <span class="tab-btn__icon">${t.icon}</span>
+      <span class="tab-btn__label">${t.label}</span>
+    </button>`).join('');
+}
+
+/* ─── Boot ────────────────────────────────────── */
+function init() {
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    try { tg.setHeaderColor('#0d0d10'); } catch {}
+    try { tg.setBackgroundColor('#0d0d10'); } catch {}
   }
+  buildTabBar();
+  router.init();
+  new SwipeBack();
+}
 
-  function tryOnReset() {
-    tryonImg       = null;
-    tryonTreatment = 'original';
-    tryonColor     = 'none';
-    document.getElementById('tryonUpload').style.display    = 'block';
-    document.getElementById('tryonWorkspace').style.display = 'none';
-    document.getElementById('tryonFile').value = '';
-  }
-
-  function bookFromTryon() {
-    const serviceMap = {
-      polish:  'Блеск — Полировка кузова (от 8 000 ₽)',
-      ceramic: 'Защита — Керамическое покрытие (от 25 000 ₽)',
-      ppf:     'Защита — Бронирование PPF (от 15 000 ₽)',
-      tint:    'Тонировка стёкол (от 5 000 ₽)',
-    };
-    goToBooking(serviceMap[tryonTreatment] || '');
-  }
-
-  /* ══════════════════════════════════════
-     CABINET
-     ══════════════════════════════════════ */
-  function renderCabinet() {
-    /* Profile */
-    const nm = document.getElementById('profileName');
-    const sb = document.getElementById('profileSub');
-    const av = document.getElementById('profileAvatar');
-    if (user) {
-      const full = [user.first_name, user.last_name].filter(Boolean).join(' ');
-      const init = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
-      if (nm) nm.textContent = full || 'Пользователь';
-      if (sb) sb.textContent = user.username ? '@' + user.username : 'ID: ' + user.id;
-      if (av) av.textContent = init || '👤';
-    } else {
-      if (nm) nm.textContent = 'Откройте в боте';
-      if (sb) sb.textContent = 'Необходим Telegram аккаунт';
-    }
-
-    /* Bookings */
-    const bookings = loadBookings();
-    const list     = document.getElementById('bookingsList');
-    const stats    = document.getElementById('cabinetStats');
-
-    if (!bookings.length) {
-      if (stats) stats.style.display = 'none';
-      if (list) list.innerHTML = `
-        <div class="empty-state">
-          <div class="es-icon">📋</div>
-          <div class="es-title">Заявок пока нет</div>
-          <div class="es-sub">Запишитесь на услугу — история появится здесь</div>
-          <button class="es-btn" onclick="TMA.goTo('booking')">Записаться</button>
-        </div>`;
-      return;
-    }
-
-    if (stats) {
-      stats.style.display = 'grid';
-      const sc = document.getElementById('statCount');
-      const sl = document.getElementById('statLast');
-      if (sc) sc.textContent = bookings.length;
-      if (sl) sl.textContent = bookings[0].date;
-    }
-
-    if (list) list.innerHTML = bookings.map(b => `
-      <div class="booking-item">
-        <div class="bi-row">
-          <div class="bi-service">${b.service}</div>
-          <span class="bi-status">${b.status}</span>
-        </div>
-        <div class="bi-date">${b.date}</div>
-        ${b.comment ? `<div class="bi-comment">${b.comment}</div>` : ''}
-      </div>
-    `).join('');
-  }
-
-  /* ── Haptic ──────────────────────────── */
-  function haptic(type) {
-    if (!tg?.HapticFeedback) return;
-    try {
-      if (type === 'success' || type === 'error') tg.HapticFeedback.notificationOccurred(type);
-      else if (type === 'selection') tg.HapticFeedback.selectionChanged();
-      else tg.HapticFeedback.impactOccurred(type || 'light');
-    } catch {}
-  }
-
-  /* ── Boot ────────────────────────────── */
-  document.addEventListener('DOMContentLoaded', init);
-
-  /* ── Public API ──────────────────────── */
-  return { goTo, goBack, goToBooking, onPhotoChange, tryOnLoad, applyTreatment, setColor, tryOnReset, bookFromTryon };
-
-})();
+document.addEventListener('DOMContentLoaded', init);
