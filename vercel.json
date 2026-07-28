@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/submit", "dest": "/api/submit.py" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
