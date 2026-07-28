@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>MS Detailing Carbon</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="tma.css"/>
+</head>
+<body>
+
+  <!-- ═══ ЭКРАНЫ ═══ -->
+
+  <!-- ГЛАВНАЯ / ЗАПИСЬ -->
+  <div class="screen active" id="screen-home">
+    <div class="screen-scroll">
+      <div class="tma-hero">
+        <div class="tma-hero-bg"></div>
+        <div class="tma-hero-content">
+          <div class="tma-logo">MS <span>Detailing Carbon</span></div>
+          <h1>Профессиональный<br/>детейлинг в Казани</h1>
+          <p>Казань, Щербаковский пер., 7 · Пн–Сб 9:00–20:00</p>
+        </div>
+      </div>
+
+      <!-- Быстрые кнопки -->
+      <div class="quick-actions">
+        <button class="qa-btn" onclick="TMA.openBooking()">
+          <div class="qa-icon">📋</div>
+          <span>Записаться</span>
+        </button>
+        <button class="qa-btn" onclick="TMA.goTo('catalog')">
+          <div class="qa-icon">💎</div>
+          <span>Услуги</span>
+        </button>
+        <button class="qa-btn" onclick="TMA.goTo('tryon')">
+          <div class="qa-icon">🎨</div>
+          <span>Примерка</span>
+        </button>
+        <button class="qa-btn" onclick="TMA.goTo('cabinet')">
+          <div class="qa-icon">👤</div>
+          <span>Кабинет</span>
+        </button>
+      </div>
+
+      <!-- Форма записи -->
+      <div class="section-card" id="bookingSection" style="display:none">
+        <div class="card-header">
+          <h2>Записаться</h2>
+          <button class="card-close" onclick="TMA.closeBooking()">×</button>
+        </div>
+
+        <div id="tmaUserGreet" class="user-greet" style="display:none">
+          <div class="ug-avatar" id="tmaUserAvatar"></div>
+          <div>
+            <div class="ug-name" id="tmaUserName"></div>
+            <div class="ug-hint">Ваш аккаунт Telegram подтверждён ✓</div>
+          </div>
+        </div>
+
+        <form id="tmaBookingForm">
+          <div class="tma-field" id="fieldName">
+            <label>Ваше имя</label>
+            <input type="text" id="bName" placeholder="Имя" required/>
+          </div>
+          <div class="tma-field" id="fieldPhone">
+            <label>Телефон <span class="field-hint">необязательно — ответим в Telegram</span></label>
+            <input type="tel" id="bPhone" placeholder="+7 (___) ___-__-__"/>
+          </div>
+          <div class="tma-field">
+            <label>Услуга</label>
+            <select id="bService">
+              <option value="">Выберите услугу...</option>
+              <option>Блеск — Полировка кузова (от 8 000 ₽)</option>
+              <option>Защита — Керамическое покрытие (от 25 000 ₽)</option>
+              <option>Защита — Бронирование PPF (от 15 000 ₽)</option>
+              <option>Химчистка салона (от 6 000 ₽)</option>
+              <option>Полный уход — Комплексный детейлинг (от 35 000 ₽)</option>
+              <option>Не знаю, нужна консультация</option>
+            </select>
+          </div>
+          <div class="tma-field">
+            <label>Автомобиль и пожелания</label>
+            <textarea id="bComment" placeholder="Например: BMW X5, нужна полировка + керамика" rows="3"></textarea>
+          </div>
+          <div class="tma-field">
+            <label>Фото автомобиля <span class="field-hint">необязательно</span></label>
+            <div class="photo-upload" id="bPhotoUpload">
+              <input type="file" id="bPhotos" accept="image/*" multiple style="display:none"/>
+              <button type="button" class="photo-upload-btn" onclick="document.getElementById('bPhotos').click()">
+                📷 Добавить фото
+              </button>
+              <div class="photo-preview" id="bPhotoPreview"></div>
+            </div>
+          </div>
+          <button type="submit" class="tma-submit" id="bSubmit">
+            <span>Отправить заявку</span>
+          </button>
+          <div class="form-result" id="bResult"></div>
+        </form>
+      </div>
+
+      <!-- Контакты -->
+      <div class="info-cards">
+        <a href="tel:+79991576971" class="info-card">
+          <div class="ic-icon">📞</div>
+          <div>
+            <div class="ic-label">Телефон</div>
+            <div class="ic-val">+7 (999) 157-69-71</div>
+          </div>
+        </a>
+        <div class="info-card">
+          <div class="ic-icon">📍</div>
+          <div>
+            <div class="ic-label">Адрес</div>
+            <div class="ic-val">Щербаковский пер., 7, Казань</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="ic-icon">🕐</div>
+          <div>
+            <div class="ic-label">Режим работы</div>
+            <div class="ic-val">Пн–Сб: 9:00–20:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАТАЛОГ УСЛУГ -->
+  <div class="screen" id="screen-catalog">
+    <div class="screen-header">
+      <h2>Услуги и цены</h2>
+    </div>
+    <div class="screen-scroll">
+
+      <div class="service-card" onclick="TMA.bookService('Блеск — Полировка кузова (от 8 000 ₽)')">
+        <div class="sc-badge">Популярно</div>
+        <div class="sc-icon">✨</div>
+        <div class="sc-body">
+          <h3>Полировка кузова</h3>
+          <p>Устранение царапин, голограмм и потёртостей. Зеркальный блеск, восстановление цвета до 90%.</p>
+          <div class="sc-meta">
+            <span class="sc-time">⏱ 1–2 дня</span>
+            <span class="sc-price">от 8 000 ₽</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card" onclick="TMA.bookService('Защита — Керамическое покрытие (от 25 000 ₽)')">
+        <div class="sc-icon">🛡️</div>
+        <div class="sc-body">
+          <h3>Керамическое покрытие</h3>
+          <p>Защита лакокрасочного покрытия на 3–5 лет. Гидрофобность, устойчивость к царапинам и UV.</p>
+          <div class="sc-meta">
+            <span class="sc-time">⏱ 2–3 дня</span>
+            <span class="sc-price">от 25 000 ₽</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card" onclick="TMA.bookService('Защита — Бронирование PPF (от 15 000 ₽)')">
+        <div class="sc-icon">🏎️</div>
+        <div class="sc-body">
+          <h3>Бронирование PPF</h3>
+          <p>Полиуретановая плёнка защищает от камней, сколов, царапин. Самовосстанавливающееся покрытие.</p>
+          <div class="sc-meta">
+            <span class="sc-time">⏱ 2–5 дней</span>
+            <span class="sc-price">от 15 000 ₽</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card" onclick="TMA.bookService('Химчистка салона (от 6 000 ₽)')">
+        <div class="sc-icon">🪑</div>
+        <div class="sc-body">
+          <h3>Химчистка салона</h3>
+          <p>Глубокая очистка обивки, кожи, пластика и ковров. Устранение запахов и пятен любой сложности.</p>
+          <div class="sc-meta">
+            <span class="sc-time">⏱ 1 день</span>
+            <span class="sc-price">от 6 000 ₽</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card service-card--gold" onclick="TMA.bookService('Полный уход — Комплексный детейлинг (от 35 000 ₽)')">
+        <div class="sc-badge sc-badge--gold">Лучший выбор</div>
+        <div class="sc-icon">👑</div>
+        <div class="sc-body">
+          <h3>Комплексный детейлинг</h3>
+          <p>Полировка + керамика + химчистка + все детали. Полное преображение автомобиля за 3–5 дней.</p>
+          <div class="sc-meta">
+            <span class="sc-time">⏱ 3–5 дней</span>
+            <span class="sc-price">от 35 000 ₽</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card" onclick="TMA.bookService('Восстановление фар')">
+        <div class="sc-icon">💡</div>
+        <div class="sc-body">
+          <h3>Восстановление фар</h3>
+          <p>Полировка и лакировка пожелтевших фар. Улучшение видимости в ночное время.</p>
+          <div class="sc-meta">
+            <span class="sc-time">⏱ 2–4 часа</span>
+            <span class="sc-price">от 3 000 ₽</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card" onclick="TMA.bookService('Тонировка стёкол')">
+        <div class="sc-icon">🪟</div>
+        <div class="sc-body">
+          <h3>Тонировка стёкол</h3>
+          <p>Плёнка Llumar или SolarGard. Защита от UV, тепла и бликов. Все степени светопропускания.</p>
+          <div class="sc-meta">
+            <span class="sc-time">⏱ 3–5 часов</span>
+            <span class="sc-price">от 5 000 ₽</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ПРИМЕРКА -->
+  <div class="screen" id="screen-tryon">
+    <div class="screen-header">
+      <h2>Примерка покрытия</h2>
+      <p class="screen-sub">Загрузите фото авто и посмотрите результат</p>
+    </div>
+    <div class="screen-scroll">
+
+      <div class="tryon-upload" id="tryonUpload">
+        <input type="file" id="tryonFile" accept="image/*" style="display:none" onchange="TMA.tryOnLoad(this)"/>
+        <button class="tryon-upload-btn" onclick="document.getElementById('tryonFile').click()">
+          <div class="tub-icon">🚗</div>
+          <div class="tub-text">Загрузить фото автомобиля</div>
+          <div class="tub-hint">JPG, PNG — сфотографируйте сбоку</div>
+        </button>
+      </div>
+
+      <div class="tryon-workspace" id="tryonWorkspace" style="display:none">
+        <div class="tryon-canvas-wrap">
+          <canvas id="tryonCanvas"></canvas>
+          <div class="tryon-overlay" id="tryonOverlay"></div>
+        </div>
+
+        <div class="tryon-label" id="tryonLabel">Оригинал</div>
+
+        <!-- Выбор покрытия -->
+        <div class="treatment-tabs">
+          <button class="tt-btn active" onclick="TMA.applyTreatment('original')" data-t="original">Оригинал</button>
+          <button class="tt-btn" onclick="TMA.applyTreatment('polish')" data-t="polish">Полировка</button>
+          <button class="tt-btn" onclick="TMA.applyTreatment('ceramic')" data-t="ceramic">Керамика</button>
+          <button class="tt-btn" onclick="TMA.applyTreatment('ppf')" data-t="ppf">PPF плёнка</button>
+          <button class="tt-btn" onclick="TMA.applyTreatment('tint')" data-t="tint">Тонировка</button>
+        </div>
+
+        <!-- Выбор цвета (для PPF/плёнки) -->
+        <div class="color-section" id="colorSection" style="display:none">
+          <div class="cs-label">Цвет плёнки</div>
+          <div class="color-swatches" id="colorSwatches">
+            <button class="cs-swatch active" data-color="none" onclick="TMA.setColor('none')" title="Прозрачная"></button>
+            <button class="cs-swatch" data-color="#1a1a1a" style="background:#1a1a1a" onclick="TMA.setColor('#1a1a1a')" title="Чёрный"></button>
+            <button class="cs-swatch" data-color="#ffffff" style="background:#ffffff" onclick="TMA.setColor('#ffffff')" title="Белый"></button>
+            <button class="cs-swatch" data-color="#1e3a8a" style="background:#1e3a8a" onclick="TMA.setColor('#1e3a8a')" title="Тёмно-синий"></button>
+            <button class="cs-swatch" data-color="#991b1b" style="background:#991b1b" onclick="TMA.setColor('#991b1b')" title="Тёмно-красный"></button>
+            <button class="cs-swatch" data-color="#4a7c59" style="background:#4a7c59" onclick="TMA.setColor('#4a7c59')" title="Зелёный"></button>
+            <button class="cs-swatch" data-color="#92400e" style="background:#92400e" onclick="TMA.setColor('#92400e')" title="Коричневый"></button>
+            <button class="cs-swatch" data-color="#4c1d95" style="background:#4c1d95" onclick="TMA.setColor('#4c1d95')" title="Фиолетовый"></button>
+          </div>
+        </div>
+
+        <!-- Описание эффекта -->
+        <div class="treatment-desc" id="treatmentDesc"></div>
+
+        <!-- Кнопка записаться -->
+        <button class="tma-submit tryon-cta" id="tryonCta" onclick="TMA.bookFromTryon()" style="display:none">
+          Записаться на эту услугу →
+        </button>
+
+        <!-- Новое фото -->
+        <button class="tryon-reset" onclick="TMA.tryOnReset()">Загрузить другое фото</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ЛИЧНЫЙ КАБИНЕТ -->
+  <div class="screen" id="screen-cabinet">
+    <div class="screen-header">
+      <h2>Личный кабинет</h2>
+    </div>
+    <div class="screen-scroll">
+
+      <div class="cabinet-profile" id="cabinetProfile">
+        <div class="cp-avatar" id="cpAvatar">👤</div>
+        <div class="cp-info">
+          <div class="cp-name" id="cpName">Загрузка...</div>
+          <div class="cp-id" id="cpId"></div>
+        </div>
+      </div>
+
+      <div class="cabinet-stats" id="cabinetStats" style="display:none">
+        <div class="cs-item">
+          <div class="cs-num" id="statCount">0</div>
+          <div class="cs-lbl">Заявок</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-num" id="statLast">—</div>
+          <div class="cs-lbl">Последняя</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-num">25%</div>
+          <div class="cs-lbl">Скидка CARBON25</div>
+        </div>
+      </div>
+
+      <div class="section-title-row">
+        <h3>История заявок</h3>
+      </div>
+
+      <div id="bookingsList">
+        <div class="empty-state">
+          <div class="es-icon">📋</div>
+          <div class="es-text">Заявок пока нет</div>
+          <div class="es-sub">Запишитесь на услугу — история появится здесь</div>
+          <button class="tma-submit" onclick="TMA.goTo('home'); TMA.openBooking()">Записаться</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ НИЖНЯЯ НАВИГАЦИЯ ═══ -->
+  <nav class="tma-nav">
+    <button class="tma-nav-btn active" onclick="TMA.goTo('home')" data-tab="home">
+      <div class="tnb-icon">🏠</div>
+      <span>Главная</span>
+    </button>
+    <button class="tma-nav-btn" onclick="TMA.goTo('catalog')" data-tab="catalog">
+      <div class="tnb-icon">💎</div>
+      <span>Услуги</span>
+    </button>
+    <button class="tma-nav-btn tma-nav-btn--cta" onclick="TMA.goTo('home'); TMA.openBooking()">
+      <div class="tnb-icon">+</div>
+      <span>Записаться</span>
+    </button>
+    <button class="tma-nav-btn" onclick="TMA.goTo('tryon')" data-tab="tryon">
+      <div class="tnb-icon">🎨</div>
+      <span>Примерка</span>
+    </button>
+    <button class="tma-nav-btn" onclick="TMA.goTo('cabinet')" data-tab="cabinet">
+      <div class="tnb-icon">👤</div>
+      <span>Кабинет</span>
+    </button>
+  </nav>
+
+  <script src="tma.js"></script>
+</body>
+</html>

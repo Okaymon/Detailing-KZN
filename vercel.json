@@ -2,6 +2,7 @@
   "version": 2,
   "routes": [
     { "src": "/submit", "dest": "/api/submit.py" },
+    { "src": "/tma", "dest": "/tma.html" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }
