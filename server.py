@@ -10,6 +10,8 @@ import hmac
 import email
 import email.parser
 import email.policy
+import html
+import urllib.error
 import urllib.request
 import urllib.parse
 
@@ -68,8 +70,23 @@ def tg_call(method, fields, files=None):
         data=body,
         headers={'Content-Type': ctype}
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read())
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            response = json.loads(r.read())
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode('utf-8', errors='replace')
+        try:
+            description = json.loads(raw).get('description')
+        except (TypeError, ValueError):
+            description = None
+        detail = description or f'HTTP {exc.code}'
+        raise RuntimeError(f'Telegram отклонил запрос: {detail}') from exc
+
+    if not response.get('ok'):
+        raise RuntimeError(
+            f"Telegram отклонил запрос: {response.get('description', 'неизвестная ошибка')}"
+        )
+    return response
 
 
 PROMO_CODE = 'CARBON25'
@@ -83,9 +100,9 @@ def send_to_telegram(name, phone, request_text, photos, promo_code=''):
     if used_promo:
         lines.append(f'🎟 <b>ПРОМОКОД {PROMO_CODE} — скидка 25%</b>')
         lines.append('')
-    if name:         lines.append(f'👤 <b>Имя:</b> {name}')
-    if phone:        lines.append(f'📞 <b>Телефон:</b> {phone}')
-    if request_text: lines.append(f'💬 <b>Запрос:</b> {request_text}')
+    if name:         lines.append(f'👤 <b>Имя:</b> {html.escape(name)}')
+    if phone:        lines.append(f'📞 <b>Телефон:</b> {html.escape(phone)}')
+    if request_text: lines.append(f'💬 <b>Запрос:</b> {html.escape(request_text)}')
     text = '\n'.join(lines)
 
     if photos:

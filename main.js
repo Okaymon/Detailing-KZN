@@ -391,7 +391,7 @@ async function submitToTelegram(fd, btn, spanEl, successHtml, resetFn) {
       throw new Error(data.error || 'Ошибка сервера');
     }
   } catch (err) {
-    spanEl.textContent = 'Ошибка — попробуйте ещё раз';
+    spanEl.textContent = err.message || 'Ошибка — попробуйте ещё раз';
     btn.disabled = false;
     console.error(err);
     return false;
@@ -468,10 +468,10 @@ if (contactForm) {
             <p>Перезвоним в течение 15 минут.<br/>Пн–Сб: 9:00–20:00</p>
           </div>`;
       } else {
-        throw new Error(data.error || 'Ошибка');
+        throw new Error(data.error || 'Ошибка сервера');
       }
     } catch (err) {
-      span.textContent = 'Ошибка — попробуйте ещё раз';
+      span.textContent = err.message || 'Ошибка — попробуйте ещё раз';
       btn.disabled = false;
       console.error(err);
     }
