@@ -850,7 +850,8 @@ ul { list-style: none; }
 .hero-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.08); z-index: 6; }
 .hero-progress-bar { height: 100%; background: var(--gold); transition: width 0.1s linear; }
 
-.hero-scroll { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 6; }
+.hero-scroll { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 100; transition: opacity 0.4s; }
+.hero-scroll.hidden { opacity: 0; pointer-events: none; }
 .scroll-mouse { width: 24px; height: 38px; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; display: flex; justify-content: center; padding-top: 7px; }
 .scroll-wheel { width: 3px; height: 8px; background: var(--gold); border-radius: 2px; animation: scrollWheel 2s ease-in-out infinite; }
 @keyframes scrollWheel { 0%, 100% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(10px); opacity: 0; } }

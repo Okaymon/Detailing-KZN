@@ -53,8 +53,10 @@ const nav    = document.getElementById('nav');
 const burger = document.getElementById('burger');
 const mobileMenu = document.getElementById('mobileMenu');
 
+const heroScroll = document.querySelector('.hero-scroll');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 60);
+  if (heroScroll) heroScroll.classList.toggle('hidden', window.scrollY > 80);
 }, { passive: true });
 
 burger.addEventListener('click', () => {
