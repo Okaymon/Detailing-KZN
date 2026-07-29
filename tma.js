@@ -46,6 +46,7 @@ const SERVICES = [
     price: 'от 25 000 ₽',
     time: '2–3 дня',
     img: 'assets/ceramic-apply.jpg',
+    video: 'assets/ceramika.mp4',
     desc: 'Нанокерамика создаёт стеклоподобный защитный слой твёрдостью 9H. Гидрофобность, защита от UV, химии и мелких царапин. Гарантия блеска 3–5 лет.',
     includes: ['Полировка перед нанесением', 'Обезжиривание ЛКП IPA', 'Нанесение керамики 9H (2 слоя)', 'Выдержка в инфракрасной кабине', 'Гидрофобная защита стёкол', 'Сертификат с гарантией'],
     category: 'protection',
@@ -529,7 +530,10 @@ function renderServiceDetail({ id } = {}) {
 
   return `
     <div class="detail-hero">
-      <div style="position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('${s.img}')"></div>
+      ${s.video
+        ? `<video autoplay loop muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><source src="${s.video}" type="video/mp4"/></video>`
+        : `<div style="position:absolute;inset:0;background-size:cover;background-position:center;background-image:url('${s.img}')"></div>`
+      }
       <div class="detail-hero__grad"></div>
       <button class="detail-hero__back" onclick="router.pop()">‹</button>
       <div class="detail-hero__badge">
