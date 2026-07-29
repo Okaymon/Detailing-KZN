@@ -728,6 +728,10 @@ function renderPayment({ service = '', price = '', img = '' } = {}) {
         <span class="pay-bank-logos">VISA &nbsp;MC &nbsp;МИР</span>
       </div>
 
+      <div class="pay-disclaimer">
+        MS Detailing Carbon не хранит данные ваших карт, они находятся у вашего банка.
+      </div>
+
       <div style="height:16px"></div>
     </div>`;
 }
