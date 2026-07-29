@@ -795,4 +795,14 @@ initBASlider(
     });
     setTimeout(() => { cmCopy.textContent = 'Скопировать'; }, 2200);
   });
+
+  // Auto-resize textareas
+  document.querySelectorAll('textarea').forEach(ta => {
+    const autoResize = () => {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    };
+    ta.addEventListener('input', autoResize);
+    autoResize();
+  });
 })();
