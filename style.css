@@ -2137,3 +2137,6 @@ a.cic-val:hover { color: var(--gold); }
   .ht-item:first-child,
   .ht-item:last-child { padding-left: 6px; padding-right: 6px; }
 }
+
+/* Hide Replit badge */
+#replit-badge, [data-replit-badge], iframe[src*="replit"] { display: none !important; }
