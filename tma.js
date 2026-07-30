@@ -1343,16 +1343,16 @@ async function submitBooking(e) {
 const WRAP_COLORS = [
   { id: 'ppf',   hex: null,      name: 'PPF',       sub: 'Прозрачный' },
   { id: 'blk_g', hex: '#0d0d0d', name: 'Чёрный',    sub: 'Глянец' },
-  { id: 'blk_m', hex: '#202020', name: 'Чёрный',    sub: 'Матовый' },
-  { id: 'wht',   hex: '#e2e2e2', name: 'Белый',     sub: 'Глянец' },
-  { id: 'navy',  hex: '#0b1d45', name: 'Синий',     sub: 'Глянец' },
-  { id: 'red',   hex: '#6b0000', name: 'Красный',   sub: 'Глянец' },
-  { id: 'grn',   hex: '#0c2b0c', name: 'Зелёный',   sub: 'Матовый' },
-  { id: 'gld',   hex: '#8c6e00', name: 'Золотой',   sub: 'Металлик' },
-  { id: 'slv',   hex: '#8a8a8a', name: 'Серебро',   sub: 'Металлик' },
-  { id: 'prp',   hex: '#2d0055', name: 'Фиолет.',   sub: 'Глянец' },
-  { id: 'org',   hex: '#8b2e00', name: 'Оранж.',    sub: 'Глянец' },
-  { id: 'brz',   hex: '#5a3010', name: 'Бронза',    sub: 'Металлик' },
+  { id: 'blk_m', hex: '#2a2a2a', name: 'Чёрный',    sub: 'Матовый' },
+  { id: 'wht',   hex: '#e8e8e8', name: 'Белый',     sub: 'Глянец' },
+  { id: 'navy',  hex: '#0d30c4', name: 'Синий',     sub: 'Глянец' },
+  { id: 'red',   hex: '#d00000', name: 'Красный',   sub: 'Глянец' },
+  { id: 'grn',   hex: '#1a6624', name: 'Зелёный',   sub: 'Матовый' },
+  { id: 'gld',   hex: '#c49a08', name: 'Золотой',   sub: 'Металлик' },
+  { id: 'slv',   hex: '#909090', name: 'Серебро',   sub: 'Металлик' },
+  { id: 'prp',   hex: '#6600cc', name: 'Фиолет.',   sub: 'Глянец' },
+  { id: 'org',   hex: '#dd4400', name: 'Оранж.',    sub: 'Глянец' },
+  { id: 'brz',   hex: '#8c5a20', name: 'Бронза',    sub: 'Металлик' },
 ];
 
 const TINT_LEVELS = [
@@ -1504,6 +1504,89 @@ function isActiveWheel(c) {
   return tryonWheelHex === c.hex;
 }
 
+/* ── Color helpers for canvas recoloring ────────── */
+function _hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function _rgbToHsl(r,g,b) {
+  r/=255; g/=255; b/=255;
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn;
+  let h=0, s=0, l=(mx+mn)/2;
+  if (d) {
+    s = d / (1 - Math.abs(2*l - 1));
+    switch(mx) {
+      case r: h = (((g-b)/d % 6) + 6) % 6; break;
+      case g: h = (b-r)/d + 2; break;
+      case b: h = (r-g)/d + 4; break;
+    }
+    h /= 6;
+  }
+  return [h, s, l];
+}
+function _hslToRgb(h,s,l) {
+  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h*6)%2-1)), m=l-c/2;
+  let r=0,g=0,b=0;
+  const hi=Math.floor(h*6);
+  if(hi===0){r=c;g=x;} else if(hi===1){r=x;g=c;}
+  else if(hi===2){g=c;b=x;} else if(hi===3){g=x;b=c;}
+  else if(hi===4){r=x;b=c;} else{r=c;b=x;}
+  return [Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255)];
+}
+
+/**
+ * Recolor car body pixels on canvas using luminosity-preserving HSL replacement.
+ * - Very dark pixels (background, deep shadow): untouched
+ * - Very bright pixels (specular highlights): untouched
+ * - Mid-range pixels: hue → target hue, saturation → rich target saturation, lightness preserved
+ */
+function recolorCarBody(ctx, canvas, targetHex) {
+  const [tR,tG,tB] = _hexToRgb(targetHex);
+  const [tH, tS]   = _rgbToHsl(tR,tG,tB);
+
+  // Achromatic targets (black, white, silver) — desaturate instead
+  const isAchromatic = tS < 0.10;
+
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = imgData.data;
+
+  // Luminosity thresholds (0..1)
+  const D0 = 0.04, D1 = 0.17;   // dark edge: fade in
+  const B0 = 0.78, B1 = 0.94;   // bright edge: fade out
+  // Rich saturation for colored wraps
+  const RICH_S = Math.max(tS, 0.72);
+
+  for (let i = 0; i < d.length; i += 4) {
+    const [h, s, l] = _rgbToHsl(d[i], d[i+1], d[i+2]);
+
+    if (l <= D0 || l >= B1) continue; // pure black background / pure specular → skip
+
+    // Smooth blend factor (0 at edges → 1 in mid-tones)
+    let blend;
+    if (l < D1)      blend = (l - D0) / (D1 - D0);
+    else if (l > B0) blend = (B1 - l) / (B1 - B0);
+    else             blend = 1.0;
+    blend = blend * blend * (3 - 2 * blend); // smoothstep
+
+    let nr, ng, nb;
+    if (isAchromatic) {
+      // Desaturate toward neutral — keep original hue but drain saturation
+      const newS = s * (1 - blend * 0.88);
+      [nr,ng,nb] = _hslToRgb(h, newS, l);
+    } else {
+      // Hue replacement with rich saturation, lightness fully preserved
+      const newS = s + (RICH_S - s) * blend;
+      [nr,ng,nb] = _hslToRgb(tH, Math.min(1, newS), l);
+    }
+
+    d[i]   = Math.round(d[i]   + (nr - d[i])   * blend);
+    d[i+1] = Math.round(d[i+1] + (ng - d[i+1]) * blend);
+    d[i+2] = Math.round(d[i+2] + (nb - d[i+2]) * blend);
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+}
+
 /* ── Apply visual effects ─────────────────────── */
 function applyTryonEffect() {
   if (!tryonImg) return;
@@ -1534,16 +1617,17 @@ function applyTryonEffect() {
   }
   ctx.drawImage(tryonImg, 0, 0, canvas.width, canvas.height);
 
+  // Canvas-based car body recoloring (replaces CSS mix-blend-mode overlay)
+  if (tryonMode === 'body' && tryonWrapHex &&
+      (tryonBodyFx === 'wrap' || tryonBodyFx === 'ppf')) {
+    recolorCarBody(ctx, canvas, tryonWrapHex);
+  }
+
+  // Keep other layers (tint, wheels) using CSS overlay; hide body overlay (handled in canvas)
   ['layerBody','layerTint','layerWheelL','layerWheelR'].forEach(id => {
     const l = document.getElementById(id);
     if (l) { l.style.display = 'none'; l.style.background = ''; }
   });
-
-  if (tryonMode === 'body' && tryonWrapHex &&
-      (tryonBodyFx === 'wrap' || tryonBodyFx === 'ppf')) {
-    const l = document.getElementById('layerBody');
-    if (l) { l.style.display = 'block'; l.style.background = tryonWrapHex; }
-  }
 
   if (tryonMode === 'tint') {
     const lv = TINT_LEVELS.find(t => t.id === tryonTintId) || TINT_LEVELS[1];
