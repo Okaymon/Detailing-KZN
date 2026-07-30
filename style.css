@@ -1375,6 +1375,7 @@ ul { list-style: none; }
   pointer-events: none;
 }
 #ba2-after img { transform: scaleX(-1); }
+#ba0-after img { transform: scaleX(-1); }
 
 .ba-label {
   position: absolute; top: 16px;
