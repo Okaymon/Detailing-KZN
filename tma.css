@@ -1111,6 +1111,30 @@ body {
   cursor: pointer;
 }
 
+/* Tap-to-reseed hint */
+.tryon-tap-hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 16px 2px;
+  padding: 9px 14px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,.65);
+  line-height: 1.4;
+}
+.tryon-tap-hint__icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  animation: tryon-pulse 2s ease-in-out infinite;
+}
+@keyframes tryon-pulse {
+  0%,100% { transform: scale(1); opacity: .8; }
+  50%      { transform: scale(1.18) translateY(-1px); opacity: 1; }
+}
+
 /* Treatment (body fx) buttons */
 .treatment-grid {
   display: flex; gap: 8px;

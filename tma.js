@@ -1379,6 +1379,9 @@ let tryonBodyFx   = 'original';
 let tryonWrapHex  = null;
 let tryonTintId   = 't50';
 let tryonWheelHex = null;
+let tryonMask     = null;   // Float32Array — car body mask (0..1 per pixel)
+let tryonSeedNX   = null;   // normalized seed X (0..1), null = auto-center
+let tryonSeedNY   = null;   // normalized seed Y (0..1), null = auto
 
 /* ── Mode switching ───────────────────────────── */
 function setTryonMode(mode) {
@@ -1436,6 +1439,11 @@ function renderBodyControls() {
     </button>`).join('');
 
   const showColors = tryonBodyFx === 'wrap' || tryonBodyFx === 'ppf';
+  const tapHint = (showColors && tryonWrapHex) ? `
+    <div class="tryon-tap-hint">
+      <span class="tryon-tap-hint__icon">👆</span>
+      Нажмите на кузов, чтобы уточнить выделение
+    </div>` : '';
   const colorGrid = showColors ? `
     <div class="section-title--sm" style="margin-top:14px">Цвет плёнки</div>
     <div class="wrap-color-grid">
@@ -1446,7 +1454,8 @@ function renderBodyControls() {
           <span class="wrap-swatch__name">${c.name}</span>
           <span class="wrap-swatch__sub">${c.sub}</span>
         </button>`).join('')}
-    </div>` : '';
+    </div>
+    ${tapHint}` : '';
 
   const descMap = {
     original: 'Исходное состояние автомобиля без каких-либо обработок.',
@@ -1534,56 +1543,169 @@ function _hslToRgb(h,s,l) {
   return [Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255)];
 }
 
+/* ── Perceptual color distance ──────────────────── */
+function _colorDist(r1,g1,b1, r2,g2,b2) {
+  const dr=r1-r2, dg=g1-g2, db=b1-b2;
+  return Math.sqrt(2*dr*dr + 4*dg*dg + 3*db*db); // perceptual weights
+}
+
 /**
- * Recolor car body pixels on canvas using luminosity-preserving HSL replacement.
- * - Very dark pixels (background, deep shadow): untouched
- * - Very bright pixels (specular highlights): untouched
- * - Mid-range pixels: hue → target hue, saturation → rich target saturation, lightness preserved
+ * Flood-fill car mask at reduced resolution.
+ * Dual constraint: step tolerance (stops at sharp paint/background edges)
+ * + seed drift tolerance (prevents color-creep to far-away regions).
  */
-function recolorCarBody(ctx, canvas, targetHex) {
+function _floodFillMask(imgData, seedX, seedY) {
+  const { data: d, width: w, height: h } = imgData;
+  const n = w * h;
+  const mask    = new Uint8Array(n);
+  const visited = new Uint8Array(n);
+
+  const sx = Math.max(0, Math.min(w-1, Math.round(seedX)));
+  const sy = Math.max(0, Math.min(h-1, Math.round(seedY)));
+  const si = (sy * w + sx) * 4;
+  const SR = d[si], SG = d[si+1], SB = d[si+2];
+
+  const STEP = 32;   // max Δ between adjacent pixels (blocks crossing hard edges)
+  const DRIFT = 78;  // max total Δ from seed color (prevents runaway expansion)
+
+  const queue = new Int32Array(n);
+  let head = 0, tail = 0;
+  const start = sy * w + sx;
+  queue[tail++] = start;
+  visited[start] = 1;
+  mask[start] = 255;
+
+  // Store each queued pixel's own color for step-comparison with its neighbors
+  const CR = new Uint8Array(n), CG = new Uint8Array(n), CB = new Uint8Array(n);
+  CR[start] = SR; CG[start] = SG; CB[start] = SB;
+
+  while (head < tail) {
+    const idx = queue[head++];
+    const y = (idx / w) | 0, x = idx - y * w;
+    const cr = CR[idx], cg = CG[idx], cb = CB[idx];
+
+    const nbrs = [];
+    if (x > 0)   nbrs.push(idx - 1);
+    if (x < w-1) nbrs.push(idx + 1);
+    if (y > 0)   nbrs.push(idx - w);
+    if (y < h-1) nbrs.push(idx + w);
+
+    for (let k = 0; k < nbrs.length; k++) {
+      const ni = nbrs[k];
+      if (visited[ni]) continue;
+      visited[ni] = 1;
+      const pi = ni * 4;
+      const nr = d[pi], ng = d[pi+1], nb = d[pi+2];
+      if (_colorDist(nr,ng,nb, cr,cg,cb) > STEP)  continue;
+      if (_colorDist(nr,ng,nb, SR,SG,SB) > DRIFT) continue;
+      mask[ni] = 255;
+      CR[ni] = nr; CG[ni] = ng; CB[ni] = nb;
+      queue[tail++] = ni;
+    }
+  }
+  return mask;
+}
+
+/** Two-pass separable box blur → soft mask edges. */
+function _softMask(hard, w, h) {
+  const n = w * h;
+  const f = new Float32Array(n);
+  for (let i = 0; i < n; i++) f[i] = hard[i] / 255;
+
+  const r = Math.max(2, (w * 0.014) | 0); // ~1.4% of width
+  const t = new Float32Array(n);
+
+  // Horizontal
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let s = 0, c = 0;
+      for (let k = -r; k <= r; k++) {
+        const nx = x + k;
+        if (nx >= 0 && nx < w) { s += f[y*w+nx]; c++; }
+      }
+      t[y*w+x] = s / c;
+    }
+  }
+  // Vertical
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h; y++) {
+      let s = 0, c = 0;
+      for (let k = -r; k <= r; k++) {
+        const ny = y + k;
+        if (ny >= 0 && ny < h) { s += t[ny*w+x]; c++; }
+      }
+      f[y*w+x] = s / c;
+    }
+  }
+  return f;
+}
+
+/** Bilinear upsample from (sw×sh) to (dw×dh). */
+function _upsampleMask(src, sw, sh, dw, dh) {
+  if (sw === dw && sh === dh) return src;
+  const dst = new Float32Array(dw * dh);
+  const rx = sw / dw, ry = sh / dh;
+  for (let y = 0; y < dh; y++) {
+    const sy = y * ry, y0 = sy | 0, y1 = Math.min(y0+1, sh-1), fy = sy - y0;
+    for (let x = 0; x < dw; x++) {
+      const sx = x * rx, x0 = sx | 0, x1 = Math.min(x0+1, sw-1), fx = sx - x0;
+      dst[y*dw+x] = src[y0*sw+x0]*(1-fx)*(1-fy) + src[y0*sw+x1]*fx*(1-fy)
+                  + src[y1*sw+x0]*(1-fx)*fy      + src[y1*sw+x1]*fx*fy;
+    }
+  }
+  return dst;
+}
+
+/**
+ * Build car body mask via flood-fill from a normalised seed point (0..1).
+ * Works at a capped resolution (480 px wide) for speed, then upsamples.
+ */
+function buildCarMask(canvas, seedNX, seedNY) {
+  const PROC_MAX = 480;
+  const scale = Math.min(1, PROC_MAX / canvas.width);
+  const pw = Math.round(canvas.width  * scale);
+  const ph = Math.round(canvas.height * scale);
+
+  const tmp = document.createElement('canvas');
+  tmp.width = pw; tmp.height = ph;
+  const tc = tmp.getContext('2d');
+  tc.drawImage(tryonImg, 0, 0, pw, ph);
+  const imgData = tc.getImageData(0, 0, pw, ph);
+
+  const hard = _floodFillMask(imgData, seedNX * pw, seedNY * ph);
+  const soft = _softMask(hard, pw, ph);
+  return _upsampleMask(soft, pw, ph, canvas.width, canvas.height);
+}
+
+/**
+ * Apply wrap color to canvas using the pre-computed car body mask.
+ * Hue replaced → target, saturation boosted to rich level, lightness preserved.
+ */
+function applyColorWithMask(ctx, canvas, mask, targetHex) {
   const [tR,tG,tB] = _hexToRgb(targetHex);
   const [tH, tS]   = _rgbToHsl(tR,tG,tB);
-
-  // Achromatic targets (black, white, silver) — desaturate instead
   const isAchromatic = tS < 0.10;
+  const RICH_S = Math.max(tS, 0.72);
 
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const d = imgData.data;
 
-  // Luminosity thresholds (0..1)
-  const D0 = 0.04, D1 = 0.17;   // dark edge: fade in
-  const B0 = 0.78, B1 = 0.94;   // bright edge: fade out
-  // Rich saturation for colored wraps
-  const RICH_S = Math.max(tS, 0.72);
-
   for (let i = 0; i < d.length; i += 4) {
+    const blend = mask[i >> 2];
+    if (blend < 0.01) continue;
     const [h, s, l] = _rgbToHsl(d[i], d[i+1], d[i+2]);
-
-    if (l <= D0 || l >= B1) continue; // pure black background / pure specular → skip
-
-    // Smooth blend factor (0 at edges → 1 in mid-tones)
-    let blend;
-    if (l < D1)      blend = (l - D0) / (D1 - D0);
-    else if (l > B0) blend = (B1 - l) / (B1 - B0);
-    else             blend = 1.0;
-    blend = blend * blend * (3 - 2 * blend); // smoothstep
-
     let nr, ng, nb;
     if (isAchromatic) {
-      // Desaturate toward neutral — keep original hue but drain saturation
-      const newS = s * (1 - blend * 0.88);
+      const newS = s * (1 - blend * 0.86);
       [nr,ng,nb] = _hslToRgb(h, newS, l);
     } else {
-      // Hue replacement with rich saturation, lightness fully preserved
       const newS = s + (RICH_S - s) * blend;
       [nr,ng,nb] = _hslToRgb(tH, Math.min(1, newS), l);
     }
-
-    d[i]   = Math.round(d[i]   + (nr - d[i])   * blend);
-    d[i+1] = Math.round(d[i+1] + (ng - d[i+1]) * blend);
-    d[i+2] = Math.round(d[i+2] + (nb - d[i+2]) * blend);
+    d[i]   = (d[i]   + (nr - d[i])   * blend + 0.5) | 0;
+    d[i+1] = (d[i+1] + (ng - d[i+1]) * blend + 0.5) | 0;
+    d[i+2] = (d[i+2] + (nb - d[i+2]) * blend + 0.5) | 0;
   }
-
   ctx.putImageData(imgData, 0, 0);
 }
 
@@ -1617,13 +1739,18 @@ function applyTryonEffect() {
   }
   ctx.drawImage(tryonImg, 0, 0, canvas.width, canvas.height);
 
-  // Canvas-based car body recoloring (replaces CSS mix-blend-mode overlay)
+  // Flood-fill car mask → precise body recoloring
   if (tryonMode === 'body' && tryonWrapHex &&
       (tryonBodyFx === 'wrap' || tryonBodyFx === 'ppf')) {
-    recolorCarBody(ctx, canvas, tryonWrapHex);
+    if (!tryonMask) {
+      const nx = tryonSeedNX ?? 0.50;
+      const ny = tryonSeedNY ?? 0.42; // slightly above centre → car body, not wheels
+      tryonMask = buildCarMask(canvas, nx, ny);
+    }
+    applyColorWithMask(ctx, canvas, tryonMask, tryonWrapHex);
   }
 
-  // Keep other layers (tint, wheels) using CSS overlay; hide body overlay (handled in canvas)
+  // Other layers (tint, wheels) stay CSS-based; body div is no longer used
   ['layerBody','layerTint','layerWheelL','layerWheelR'].forEach(id => {
     const l = document.getElementById(id);
     if (l) { l.style.display = 'none'; l.style.background = ''; }
@@ -1664,7 +1791,7 @@ function loadTryonPhoto(input) {
   const reader = new FileReader();
   reader.onload = ev => {
     tryonImg = new Image();
-    tryonImg.onload = () => showTryonWorkspace();
+    tryonImg.onload = () => { _resetMask(); showTryonWorkspace(); };
     tryonImg.src = ev.target.result;
   };
   reader.readAsDataURL(file);
@@ -1673,8 +1800,12 @@ function loadTryonPhoto(input) {
 function loadDemoCar() {
   haptic('light');
   tryonImg = new Image();
-  tryonImg.onload = () => showTryonWorkspace();
+  tryonImg.onload = () => { _resetMask(); showTryonWorkspace(); };
   tryonImg.src = 'assets/gwagon-body.jpg';
+}
+
+function _resetMask() {
+  tryonMask = null; tryonSeedNX = null; tryonSeedNY = null;
 }
 
 function showTryonWorkspace() {
@@ -1688,7 +1819,36 @@ function showTryonWorkspace() {
       b.classList.toggle('tryon-tab--active', b.dataset.mode === 'body'));
   }
   renderTryonControls();
-  setTimeout(applyTryonEffect, 40);
+  setTimeout(() => {
+    applyTryonEffect();
+    _attachCanvasSeedListeners();
+  }, 40);
+}
+
+/** Attach tap/click listeners for re-seeding the flood-fill. */
+function _attachCanvasSeedListeners() {
+  const canvas = document.getElementById('tryonCanvas');
+  if (!canvas || canvas._seedBound) return;
+  canvas._seedBound = true;
+
+  function reseed(clientX, clientY) {
+    if (tryonMode !== 'body') return;
+    if (tryonBodyFx !== 'wrap' && tryonBodyFx !== 'ppf') return;
+    if (!tryonWrapHex) return;
+    const rect = canvas.getBoundingClientRect();
+    tryonSeedNX = (clientX - rect.left)  / rect.width;
+    tryonSeedNY = (clientY - rect.top)   / rect.height;
+    tryonMask   = null; // invalidate → recompute on next applyTryonEffect
+    haptic('light');
+    applyTryonEffect();
+  }
+
+  canvas.addEventListener('click', e => reseed(e.clientX, e.clientY));
+  canvas.addEventListener('touchend', e => {
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    reseed(t.clientX, t.clientY);
+  }, { passive: false });
 }
 
 /* ── Effect setters ───────────────────────────── */
@@ -1729,6 +1889,7 @@ function setWheelColor(id, hexStr) {
 function resetTryon() {
   tryonImg = null; tryonBodyFx = 'original'; tryonWrapHex = null;
   tryonTintId = 't50'; tryonWheelHex = null;
+  _resetMask();
   const up = document.getElementById('tryonUploadZone');
   const ws = document.getElementById('tryonWorkspace');
   const fi = document.getElementById('tryonFileMain');
