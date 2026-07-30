@@ -1,44 +1,58 @@
-# MS Detailing Carbon — Сайт детейлинг-студии
+# MS Detailing Carbon
 
-## Описание проекта
-Одностраничный премиум-сайт для детейлинг-студии **MS Detailing Carbon**. Светлый элегантный дизайн с золотыми акцентами, кинематографичной анимацией на главном экране (G-Wagon изумрудного цвета) и эффектами блеска/искр.
+Premium auto detailing landing page + Telegram Mini App for a studio in Kazan, Russia.
 
-## Стек
-- **HTML / CSS / JavaScript** — чистый фронтенд, без фреймворков
-- **Python** — статический HTTP-сервер (порт 5000)
-- **AI-изображения** — генерировались через Replit media generation
+## Stack
 
-## Запуск
+- **Backend**: Python 3 — standard library only (`http.server`). No external dependencies.
+- **Frontend**: Vanilla HTML/CSS/JS (no build step). Two entry points:
+  - `index.html` — public website
+  - `tma.html` — Telegram Mini App (TMA)
+
+## Running
+
 ```bash
 python3 server.py
 ```
-Сервер стартует на порту 5000.
 
-## Структура
-```
-index.html          # Главная страница
-style.css           # Все стили (светлая тема, gold/dark акценты)
-main.js             # Анимации, слайдшоу, частицы, счётчики
-server.py           # Python static server
-assets/
-  gwagon-body.jpg      # Кузов G-Wagon (hero слайд 1)
-  gwagon-front.jpg     # Фронт G-Wagon (hero слайд 2)
-  gwagon-door-open.jpg # Открытая дверь (hero слайд 3)
-  gwagon-interior.jpg  # Салон рыжая кожа (hero слайд 4)
-  logo-icon.png        # Монограмма MS
-```
+Serves on port 5000. Static files are served from the project root.
 
-## Секции сайта
-1. **Hero** — кинематографичный слайдшоу G-Wagon с эффектами частиц/блеска и Ken Burns анимацией
-2. **Stats** — счётчики на тёмном фоне
-3. **Услуги** — 6 карточек с ценами
-4. **Процесс** — 4 шага детейлинга
-5. **Галерея** — сетка фото
-6. **О нас** — история студии
-7. **Отзывы** — 3 карточки клиентов
-8. **Контакты** — форма заявки + контактная информация
-9. **Footer**
+## Key files
+
+| File | Purpose |
+|------|---------|
+| `server.py` | Static server + `/submit` endpoint (multipart form → Telegram Bot API) |
+| `index.html` + `style.css` + `main.js` | Public landing page |
+| `tma.html` + `tma.js` + `tma.css` | Telegram Mini App (12 screens, tab router) |
+| `api/submit.py` | Form submission handler logic |
+| `assets/` | Car photos and videos used by both apps |
+
+## Environment variables
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `SESSION_SECRET` | ✅ set | HMAC key for request correlation IDs |
+| `TG_BOT_TOKEN` | ❌ missing | Telegram Bot API token (form submissions won't deliver without this) |
+| `TG_CHAT_ID` | ❌ missing | Telegram chat ID to receive form submissions |
+
+## TMA screens
+
+Home · Services · Service Detail · Booking · Payment · Payment Processing · Booking Success · **Try-On** · Studio · Gallery · Reviews · About · Profile · Promo
+
+## Try-On feature (v4)
+
+Four-tab zone-aware visual customizer in `tma.js` (`renderTryOn`, lines ~808–920):
+
+| Tab | What it shows |
+|-----|--------------|
+| **Кузов** | Original / Polish / Ceramic / PPF / Color Wrap — 12 film colors with finish names; `mix-blend-mode: hue` CSS overlay |
+| **Тонировка** | 5 darkness levels (70%→5%); trapezoid clip-path overlay simulating window area |
+| **Диски** | 7 wheel colors; circular overlays at heuristic wheel positions |
+| **Салон** | Drag before/after slider (BMW demo images); upload own photo for filter simulation |
+
+Users can load a demo G-Wagon image or upload their own car photo.
 
 ## User preferences
-- Язык интерфейса: русский
-- Дизайн: светлые тона, золотые акценты, элегантный serif (Cormorant Garamond)
+
+- Keep existing project structure and stack.
+- Russian-language UI throughout.

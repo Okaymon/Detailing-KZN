@@ -806,74 +806,114 @@ function renderBookingSuccess({ service = '', paid = false, amount = '' } = {}) 
 
 /* ── TRY-ON ───────────────────────────────────── */
 function renderTryOn() {
+  const tabs = [
+    { id: 'body',     icon: '🚗', label: 'Кузов' },
+    { id: 'tint',     icon: '🪟', label: 'Тонировка' },
+    { id: 'wheels',   icon: '⚙️', label: 'Диски' },
+    { id: 'interior', icon: '🪑', label: 'Салон' },
+  ].map(m => `
+    <button class="tryon-tab ${m.id === 'body' ? 'tryon-tab--active' : ''}" data-mode="${m.id}"
+      onclick="setTryonMode('${m.id}')">
+      <span>${m.icon}</span><span>${m.label}</span>
+    </button>`).join('');
+
   return `
     <div class="nav-header">
-      <div class="nav-header__title">Примерка покрытия</div>
+      <div class="nav-header__title">Примерка услуг</div>
     </div>
     <div class="screen-body" id="tryonBody">
-      <div id="tryonUploadZone" class="tryon-upload" onclick="document.getElementById('tryonFile').click()">
-        <input type="file" id="tryonFile" accept="image/*" style="display:none">
+
+      <div class="tryon-tabs">${tabs}</div>
+
+      <!-- Upload / Demo zone -->
+      <div id="tryonUploadZone" class="tryon-upload">
+        <input type="file" id="tryonFileMain" accept="image/*" style="display:none">
         <div class="tryon-upload__icon">🚗</div>
-        <div class="tryon-upload__title">Загрузите фото авто</div>
-        <div class="tryon-upload__hint">Сфотографируйте сбоку при хорошем освещении</div>
-        <button type="button" class="btn btn--outline btn--sm" style="margin-top:16px;width:auto;pointer-events:none">Выбрать фото</button>
+        <div class="tryon-upload__title">Загрузите фото автомобиля</div>
+        <div class="tryon-upload__hint">Вид сбоку · хорошее освещение</div>
+        <button class="btn btn--gold btn--sm" style="margin-top:16px;width:auto"
+          onclick="document.getElementById('tryonFileMain').click()">📷 Выбрать фото</button>
+        <div class="tryon-upload__or">или</div>
+        <button class="btn btn--ghost btn--sm" style="width:auto"
+          onclick="loadDemoCar()">🚙 Попробовать на G-Wagon</button>
       </div>
 
+      <!-- Car workspace -->
       <div id="tryonWorkspace" style="display:none">
-        <div class="tryon-canvas-wrap">
+        <div class="tryon-canvas-wrap" id="tryonCanvasWrap">
           <canvas id="tryonCanvas"></canvas>
-          <div class="tryon-overlay" id="tryonOverlay"></div>
+          <!-- Body hue overlay -->
+          <div class="tryon-layer tryon-layer--body" id="layerBody"></div>
+          <!-- Window tint overlay with trapezoid clip-path -->
+          <div class="tryon-layer tryon-layer--tint" id="layerTint"
+            style="clip-path:polygon(18% 10%,82% 10%,78% 53%,22% 53%)"></div>
+          <!-- Wheel overlays -->
+          <div class="tryon-layer-wheel" id="layerWheelL"
+            style="left:12%;top:56%;width:26%;padding-bottom:26%"></div>
+          <div class="tryon-layer-wheel" id="layerWheelR"
+            style="left:62%;top:56%;width:26%;padding-bottom:26%"></div>
           <div class="tryon-badge" id="tryonBadge">Оригинал</div>
+          <button class="tryon-reset-btn" onclick="resetTryon()" title="Сменить фото">✕</button>
         </div>
+        <div id="tryonControls"></div>
+        <div style="height:16px"></div>
+      </div>
 
-        <div class="section-title--sm">Покрытие</div>
-        <div class="treatment-grid">
-          <button class="treatment-btn treatment-btn--active" data-t="original" onclick="applyTreatment('original')">
-            <span class="treatment-btn__icon">📸</span>
-            <span class="treatment-btn__name">Оригинал</span>
-          </button>
-          <button class="treatment-btn" data-t="polish" onclick="applyTreatment('polish')">
-            <span class="treatment-btn__icon">✨</span>
-            <span class="treatment-btn__name">Полировка</span>
-          </button>
-          <button class="treatment-btn" data-t="ceramic" onclick="applyTreatment('ceramic')">
-            <span class="treatment-btn__icon">🛡️</span>
-            <span class="treatment-btn__name">Керамика</span>
-          </button>
-          <button class="treatment-btn" data-t="ppf" onclick="applyTreatment('ppf')">
-            <span class="treatment-btn__icon">🏎️</span>
-            <span class="treatment-btn__name">PPF</span>
-          </button>
-          <button class="treatment-btn" data-t="tint" onclick="applyTreatment('tint')">
-            <span class="treatment-btn__icon">🪟</span>
-            <span class="treatment-btn__name">Тонировка</span>
-          </button>
-        </div>
-
-        <div id="colorSection" style="display:none">
-          <div class="section-title--sm">Цвет плёнки</div>
-          <div class="color-strip" id="colorStrip">
-            <button class="color-swatch color-swatch--transparent color-swatch--active" data-color="none" onclick="setTryonColor('none')" title="Прозрачная"></button>
-            <button class="color-swatch" data-color="#0f0f0f" onclick="setTryonColor('#0f0f0f')" style="background:#0f0f0f" title="Чёрный"></button>
-            <button class="color-swatch" data-color="#f5f5f5" onclick="setTryonColor('#f5f5f5')" style="background:#f5f5f5;border:2px solid #555" title="Белый"></button>
-            <button class="color-swatch" data-color="#1e3a8a" onclick="setTryonColor('#1e3a8a')" style="background:#1e3a8a" title="Синий"></button>
-            <button class="color-swatch" data-color="#7f1d1d" onclick="setTryonColor('#7f1d1d')" style="background:#7f1d1d" title="Красный"></button>
-            <button class="color-swatch" data-color="#14532d" onclick="setTryonColor('#14532d')" style="background:#14532d" title="Зелёный"></button>
-            <button class="color-swatch" data-color="#4c1d95" onclick="setTryonColor('#4c1d95')" style="background:#4c1d95" title="Фиолетовый"></button>
+      <!-- Interior mode -->
+      <div id="tryonInterior" style="display:none">
+        <div class="section-title--sm">Химчистка салона · До и после</div>
+        <div class="ba-wrap" id="baWrap">
+          <img class="ba-img" src="assets/bmw-interior-before.jpg" alt="До" id="baImgBefore">
+          <div class="ba-after-mask" id="baAfterMask" style="clip-path:inset(0 50% 0 0)">
+            <img class="ba-img" src="assets/bmw-interior-after.jpg" alt="После">
           </div>
+          <div class="ba-handle" id="baHandle" style="left:50%">
+            <div class="ba-handle__bar"></div>
+            <div class="ba-handle__knob">◀▶</div>
+          </div>
+          <span class="ba-label ba-label--l">ДО</span>
+          <span class="ba-label ba-label--r">ПОСЛЕ</span>
+        </div>
+        <p class="tryon-desc">Перетаскивайте разделитель ← →. Профессиональная химчистка полностью восстанавливает салон: кожа, ковры, пластик, потолок. Запахи устраняются озоном.</p>
+        <div style="padding:0 16px 16px">
+          <button class="btn btn--gold" onclick="router.push('service-detail',{id:'cleaning'})">
+            Записаться на химчистку →
+          </button>
         </div>
 
-        <div class="treatment-desc" id="treatmentDesc"></div>
-
-        <div style="padding:16px" id="tryonBookBtn" style="display:none">
-          <button class="btn btn--gold" id="tryonCTA" onclick="">Записаться на эту услугу</button>
+        <div class="section-title--sm">Проверьте на вашем авто</div>
+        <div class="tryon-upload tryon-upload--sm" onclick="document.getElementById('tryonInteriorFile').click()"
+          style="margin:0 16px 16px;height:100px">
+          <input type="file" id="tryonInteriorFile" accept="image/*" style="display:none">
+          <div style="font-size:28px">📷</div>
+          <div class="tryon-upload__title" style="font-size:14px;margin-bottom:0">Загрузите фото салона</div>
+          <div class="tryon-upload__hint" style="font-size:11px">Покажем его в идеальном состоянии</div>
         </div>
-
-        <div style="padding:0 16px 8px">
-          <button class="btn btn--ghost" onclick="resetTryon()">↩ Загрузить другое фото</button>
+        <div id="tryonInteriorResult" style="display:none;margin:0 16px 16px">
+          <div class="ba-wrap" id="baUserWrap">
+            <canvas class="ba-img" id="baUserBefore"></canvas>
+            <div class="ba-after-mask" id="baUserAfterMask" style="clip-path:inset(0 50% 0 0)">
+              <canvas class="ba-img" id="baUserAfter"></canvas>
+            </div>
+            <div class="ba-handle" id="baUserHandle" style="left:50%">
+              <div class="ba-handle__bar"></div>
+              <div class="ba-handle__knob">◀▶</div>
+            </div>
+            <span class="ba-label ba-label--l">ДО</span>
+            <span class="ba-label ba-label--r">ПОСЛЕ</span>
+          </div>
+          <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:8px">
+            Симуляция результата профессиональной химчистки
+          </p>
+          <div style="padding:0 0 8px">
+            <button class="btn btn--gold" onclick="router.push('service-detail',{id:'cleaning'})">
+              Записаться на химчистку →
+            </button>
+          </div>
         </div>
         <div style="height:16px"></div>
       </div>
+
     </div>`;
 }
 
@@ -1211,10 +1251,10 @@ function afterRender(name, params, el) {
   }
 
   if (name === 'tryon') {
-    const fileInput = el.querySelector('#tryonFile');
-    if (fileInput) {
-      fileInput.addEventListener('change', e => loadTryonPhoto(e.target));
-    }
+    const fileMain = el.querySelector('#tryonFileMain');
+    if (fileMain) fileMain.addEventListener('change', e => loadTryonPhoto(e.target));
+    const fileInterior = el.querySelector('#tryonInteriorFile');
+    if (fileInterior) fileInterior.addEventListener('change', e => loadInteriorPhoto(e.target));
   }
 }
 
@@ -1297,145 +1337,405 @@ async function submitBooking(e) {
 }
 
 /* ══════════════════════════════════════════════
-   TRY-ON LOGIC
+   TRY-ON v4 — Zone-aware visual customizer
    ══════════════════════════════════════════════ */
-let tryonImg = null, tryonTreatment = 'original', tryonColor = 'none';
 
-const TREATMENTS = {
-  original: { label: 'Оригинал',   filter: 'none',                               color: null,      opacity: 0,    desc: 'Исходное состояние автомобиля без каких-либо обработок.',                                                                     cta: null },
-  polish:   { label: 'Полировка',  filter: 'contrast(1.14) saturate(1.4) brightness(1.09)', color: null, opacity: 0, desc: '✨ После полировки кузов приобретает зеркальный блеск. Царапины, голограммы, потёртости — уходят. Цвет становится глубже.', cta: 'polish' },
-  ceramic:  { label: 'Керамика',   filter: 'contrast(1.2) saturate(1.45) brightness(1.14)', color: '#fff', opacity: 0.07, desc: '🛡️ Нанокерамика создаёт защитный стеклоподобный слой. Гидрофобность, глубокий блеск, защита на 3–5 лет.',               cta: 'ceramic' },
-  ppf:      { label: 'PPF плёнка', filter: 'contrast(1.06) saturate(1.12)',       color: null,      opacity: 0,    desc: '🏎️ Полиуретановая плёнка от сколов и царапин. Выберите цвет плёнки ниже — или прозрачную для сохранения цвета кузова.',      cta: 'ppf' },
-  tint:     { label: 'Тонировка',  filter: 'contrast(1.04) brightness(0.94)',     color: '#0a0a0a', opacity: 0.22, desc: '🪟 Плёнка на стёклах: защита от UV, снижение нагрева. Затемнение 5–70%. Плёнки Llumar и SolarGard.',                          cta: 'tint' },
-};
+const WRAP_COLORS = [
+  { id: 'ppf',   hex: null,      name: 'PPF',       sub: 'Прозрачный' },
+  { id: 'blk_g', hex: '#0d0d0d', name: 'Чёрный',    sub: 'Глянец' },
+  { id: 'blk_m', hex: '#202020', name: 'Чёрный',    sub: 'Матовый' },
+  { id: 'wht',   hex: '#e2e2e2', name: 'Белый',     sub: 'Глянец' },
+  { id: 'navy',  hex: '#0b1d45', name: 'Синий',     sub: 'Глянец' },
+  { id: 'red',   hex: '#6b0000', name: 'Красный',   sub: 'Глянец' },
+  { id: 'grn',   hex: '#0c2b0c', name: 'Зелёный',   sub: 'Матовый' },
+  { id: 'gld',   hex: '#8c6e00', name: 'Золотой',   sub: 'Металлик' },
+  { id: 'slv',   hex: '#8a8a8a', name: 'Серебро',   sub: 'Металлик' },
+  { id: 'prp',   hex: '#2d0055', name: 'Фиолет.',   sub: 'Глянец' },
+  { id: 'org',   hex: '#8b2e00', name: 'Оранж.',    sub: 'Глянец' },
+  { id: 'brz',   hex: '#5a3010', name: 'Бронза',    sub: 'Металлик' },
+];
 
+const TINT_LEVELS = [
+  { id: 't70', pct: '70%', name: 'Лёгкая',   opacity: 0.14 },
+  { id: 't50', pct: '50%', name: 'Комфорт',  opacity: 0.30 },
+  { id: 't35', pct: '35%', name: 'Тёмная',   opacity: 0.50 },
+  { id: 't15', pct: '15%', name: 'Лимузин',  opacity: 0.70 },
+  { id: 't05', pct: '5%',  name: 'Макс.',    opacity: 0.86 },
+];
+
+const WHEEL_COLORS = [
+  { id: 'orig', hex: null,      name: 'Ориг.' },
+  { id: 'blk',  hex: '#0a0a0a', name: 'Чёрн.' },
+  { id: 'gry',  hex: '#555555', name: 'Серые' },
+  { id: 'wht',  hex: '#dcdcdc', name: 'Белые' },
+  { id: 'gld',  hex: '#c0920a', name: 'Золото' },
+  { id: 'brz',  hex: '#7a4e20', name: 'Бронза' },
+  { id: 'chr',  hex: '#ccd4db', name: 'Хром' },
+];
+
+let tryonMode     = 'body';
+let tryonImg      = null;
+let tryonBodyFx   = 'original';
+let tryonWrapHex  = null;
+let tryonTintId   = 't50';
+let tryonWheelHex = null;
+
+/* ── Mode switching ───────────────────────────── */
+function setTryonMode(mode) {
+  tryonMode = mode;
+  haptic('selection');
+  document.querySelectorAll('.tryon-tab').forEach(b =>
+    b.classList.toggle('tryon-tab--active', b.dataset.mode === mode));
+
+  const uploadZone = document.getElementById('tryonUploadZone');
+  const workspace  = document.getElementById('tryonWorkspace');
+  const interior   = document.getElementById('tryonInterior');
+
+  if (mode === 'interior') {
+    if (uploadZone) uploadZone.style.display = 'none';
+    if (workspace)  workspace.style.display  = 'none';
+    if (interior)   interior.style.display   = 'block';
+    setTimeout(initBASlider, 80);
+    return;
+  }
+  if (interior) interior.style.display = 'none';
+  if (tryonImg) {
+    if (uploadZone) uploadZone.style.display = 'none';
+    if (workspace)  workspace.style.display  = 'block';
+    renderTryonControls();
+    applyTryonEffect();
+  } else {
+    if (uploadZone) uploadZone.style.display = 'flex';
+    if (workspace)  workspace.style.display  = 'none';
+  }
+}
+
+/* ── Controls rendering ───────────────────────── */
+function renderTryonControls() {
+  const el = document.getElementById('tryonControls');
+  if (!el) return;
+  if (tryonMode === 'body')        el.innerHTML = renderBodyControls();
+  else if (tryonMode === 'tint')   el.innerHTML = renderTintControls();
+  else if (tryonMode === 'wheels') el.innerHTML = renderWheelControls();
+  else el.innerHTML = '';
+}
+
+function renderBodyControls() {
+  const fxList = [
+    { id: 'original', icon: '📸', name: 'Оригинал' },
+    { id: 'polish',   icon: '✨', name: 'Полировка' },
+    { id: 'ceramic',  icon: '🛡️', name: 'Керамика' },
+    { id: 'ppf',      icon: '🏎️', name: 'PPF' },
+    { id: 'wrap',     icon: '🎨', name: 'Цвет' },
+  ];
+  const fxBtns = fxList.map(t => `
+    <button class="treatment-btn ${t.id === tryonBodyFx ? 'treatment-btn--active' : ''}"
+      data-t="${t.id}" onclick="setBodyFx('${t.id}')">
+      <span class="treatment-btn__icon">${t.icon}</span>
+      <span class="treatment-btn__name">${t.name}</span>
+    </button>`).join('');
+
+  const showColors = tryonBodyFx === 'wrap' || tryonBodyFx === 'ppf';
+  const colorGrid = showColors ? `
+    <div class="section-title--sm" style="margin-top:14px">Цвет плёнки</div>
+    <div class="wrap-color-grid">
+      ${WRAP_COLORS.map(c => `
+        <button class="wrap-swatch ${isActiveWrap(c) ? 'wrap-swatch--active' : ''}"
+          data-cid="${c.id}" onclick="setWrapColor('${c.id}','${c.hex}')">
+          <span class="wrap-swatch__dot" style="${c.hex ? `background:${c.hex}` : 'background:linear-gradient(135deg,#ccc 50%,#666 50%)'}"></span>
+          <span class="wrap-swatch__name">${c.name}</span>
+          <span class="wrap-swatch__sub">${c.sub}</span>
+        </button>`).join('')}
+    </div>` : '';
+
+  const descMap = {
+    original: 'Исходное состояние автомобиля без каких-либо обработок.',
+    polish:   '✨ Машинная полировка устраняет царапины, голограммы, потёртости. Кузов приобретает зеркальный блеск.',
+    ceramic:  '🛡️ Нанокерамика 9H создаёт стеклоподобный защитный слой. Гидрофобность и блеск на 3–5 лет.',
+    ppf:      '🏎️ Полиуретановая плёнка от сколов и царапин. Прозрачная или выберите цвет кузова ниже.',
+    wrap:     '🎨 Цветная виниловая плёнка полностью меняет цвет кузова. Глянец, матовый или металлик.',
+  };
+  const ctaId = { polish: 'polish', ceramic: 'ceramic', ppf: 'ppf', wrap: 'ppf' }[tryonBodyFx];
+
+  return `
+    <div class="treatment-grid">${fxBtns}</div>
+    ${colorGrid}
+    <div class="treatment-desc" style="margin-top:12px">${descMap[tryonBodyFx] || ''}</div>
+    ${ctaId ? `<div style="padding:12px 16px 4px"><button class="btn btn--gold" onclick="router.push('service-detail',{id:'${ctaId}'})">Записаться →</button></div>` : ''}`;
+}
+
+function isActiveWrap(c) {
+  if (c.id === 'ppf') return tryonBodyFx === 'ppf' && !tryonWrapHex;
+  return tryonWrapHex === c.hex;
+}
+
+function renderTintControls() {
+  const btns = TINT_LEVELS.map(t => `
+    <button class="tint-btn ${t.id === tryonTintId ? 'tint-btn--active' : ''}"
+      data-tid="${t.id}" onclick="setTintLevel('${t.id}')">
+      <span class="tint-btn__glass" style="opacity:${0.12 + t.opacity * 0.9}"></span>
+      <span class="tint-btn__pct">${t.pct}</span>
+      <span class="tint-btn__name">${t.name}</span>
+    </button>`).join('');
+  return `
+    <div class="section-title--sm" style="margin-top:14px">Степень затемнения</div>
+    <div class="tint-grid">${btns}</div>
+    <div class="treatment-desc" style="margin-top:12px">🪟 Плёнки Llumar / SolarGard. Защита UV 99%, снижение нагрева до 60%. Гарантия 2 года.</div>
+    <div style="padding:12px 16px 4px">
+      <button class="btn btn--gold" onclick="router.push('service-detail',{id:'tint'})">Записаться на тонировку →</button>
+    </div>`;
+}
+
+function renderWheelControls() {
+  const swatches = WHEEL_COLORS.map(c => `
+    <button class="wheel-swatch ${isActiveWheel(c) ? 'wheel-swatch--active' : ''}"
+      data-wid="${c.id}" onclick="setWheelColor('${c.id}','${c.hex}')">
+      <span class="wheel-swatch__dot" style="${c.hex ? `background:${c.hex}` : 'background:conic-gradient(#aaa,#fff,#888,#555,#aaa)'}"></span>
+      <span class="wheel-swatch__name">${c.name}</span>
+    </button>`).join('');
+  return `
+    <div class="section-title--sm" style="margin-top:14px">Цвет дисков</div>
+    <div class="wheel-swatches">${swatches}</div>
+    <div class="treatment-desc" style="margin-top:12px">⚙️ Порошковая покраска и хромирование дисков. Полная смена цвета с подготовкой поверхности.</div>`;
+}
+
+function isActiveWheel(c) {
+  if (c.id === 'orig') return !tryonWheelHex;
+  return tryonWheelHex === c.hex;
+}
+
+/* ── Apply visual effects ─────────────────────── */
+function applyTryonEffect() {
+  if (!tryonImg) return;
+  const canvas = document.getElementById('tryonCanvas');
+  if (!canvas) return;
+
+  const ctx  = canvas.getContext('2d');
+  const wrap = document.getElementById('tryonCanvasWrap');
+  const maxW = (wrap || canvas.parentElement).clientWidth;
+  const ratio = tryonImg.naturalHeight / tryonImg.naturalWidth;
+  const dpr   = window.devicePixelRatio || 1;
+  canvas.width  = Math.min(maxW * dpr, 1200);
+  canvas.height = canvas.width * ratio;
+  canvas.style.width  = maxW + 'px';
+  canvas.style.height = (maxW * ratio) + 'px';
+
+  if (tryonMode === 'body') {
+    const filters = {
+      original: 'none',
+      polish:   'contrast(1.15) saturate(1.4) brightness(1.08)',
+      ceramic:  'contrast(1.2)  saturate(1.45) brightness(1.13)',
+      ppf:      'contrast(1.06) saturate(1.12)',
+      wrap:     'none',
+    };
+    canvas.style.filter = filters[tryonBodyFx] || 'none';
+  } else {
+    canvas.style.filter = 'none';
+  }
+  ctx.drawImage(tryonImg, 0, 0, canvas.width, canvas.height);
+
+  ['layerBody','layerTint','layerWheelL','layerWheelR'].forEach(id => {
+    const l = document.getElementById(id);
+    if (l) { l.style.display = 'none'; l.style.background = ''; }
+  });
+
+  if (tryonMode === 'body' && tryonWrapHex &&
+      (tryonBodyFx === 'wrap' || tryonBodyFx === 'ppf')) {
+    const l = document.getElementById('layerBody');
+    if (l) { l.style.display = 'block'; l.style.background = tryonWrapHex; }
+  }
+
+  if (tryonMode === 'tint') {
+    const lv = TINT_LEVELS.find(t => t.id === tryonTintId) || TINT_LEVELS[1];
+    const l  = document.getElementById('layerTint');
+    if (l) { l.style.display = 'block'; l.style.background = `rgba(0,3,12,${lv.opacity})`; }
+  }
+
+  if (tryonMode === 'wheels' && tryonWheelHex) {
+    ['layerWheelL','layerWheelR'].forEach(id => {
+      const l = document.getElementById(id);
+      if (l) { l.style.display = 'block'; l.style.background = tryonWheelHex; }
+    });
+  }
+
+  const badge = document.getElementById('tryonBadge');
+  if (!badge) return;
+  if (tryonMode === 'body') {
+    const labels = { original: 'Оригинал', polish: '✨ Полировка',
+                     ceramic: '🛡️ Керамика', ppf: 'PPF', wrap: '🎨 Плёнка' };
+    badge.textContent = labels[tryonBodyFx] || 'Оригинал';
+  } else if (tryonMode === 'tint') {
+    const lv = TINT_LEVELS.find(t => t.id === tryonTintId) || TINT_LEVELS[1];
+    badge.textContent = `Тонировка ${lv.pct} · ${lv.name}`;
+  } else if (tryonMode === 'wheels') {
+    const wc = WHEEL_COLORS.find(c => c.hex === tryonWheelHex);
+    badge.textContent = wc ? `Диски · ${wc.name}` : 'Оригинал';
+  }
+}
+
+/* ── Photo loading ────────────────────────────── */
 function loadTryonPhoto(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
     tryonImg = new Image();
-    tryonImg.onload = () => {
-      document.getElementById('tryonUploadZone').style.display = 'none';
-      document.getElementById('tryonWorkspace').style.display  = 'block';
-      applyTreatment('original');
-    };
+    tryonImg.onload = () => showTryonWorkspace();
     tryonImg.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-function applyTreatment(t) {
-  if (!tryonImg) return;
-  tryonTreatment = t;
-  const cfg = TREATMENTS[t];
-  haptic('selection');
-
-  const canvas = document.getElementById('tryonCanvas');
-  if (!canvas) return;
-  const ctx  = canvas.getContext('2d');
-  const wrap = canvas.parentElement;
-  const maxW = wrap.clientWidth;
-  const ratio = tryonImg.naturalHeight / tryonImg.naturalWidth;
-  const dpr   = window.devicePixelRatio || 1;
-  canvas.width  = Math.min(maxW * dpr, 1400);
-  canvas.height = canvas.width * ratio;
-  canvas.style.width  = maxW + 'px';
-  canvas.style.height = (maxW * ratio) + 'px';
-  canvas.style.filter = 'none';
-
-  const W = canvas.width, H = canvas.height;
-
-  if (!cfg.filter || cfg.filter === 'none') {
-    // Original — just draw as-is
-    ctx.drawImage(tryonImg, 0, 0, W, H);
-  } else {
-    // Step 1: draw original image (background stays untouched)
-    ctx.drawImage(tryonImg, 0, 0, W, H);
-
-    // Step 2: create off-screen canvas with filter applied to full image
-    const off = document.createElement('canvas');
-    off.width = W; off.height = H;
-    const octx = off.getContext('2d');
-    octx.filter = cfg.filter;
-    octx.drawImage(tryonImg, 0, 0, W, H);
-    octx.filter = 'none';
-
-    // Step 3: create mask canvas — radial gradient so filter is strong
-    //         in the center (car) and fades out toward the background edges
-    const mask = document.createElement('canvas');
-    mask.width = W; mask.height = H;
-    const mctx = mask.getContext('2d');
-    const cx = W * 0.5, cy = H * 0.52; // slightly below center (car body)
-    const r  = Math.max(W, H) * 0.58;
-    const grad = mctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-    grad.addColorStop(0,    'rgba(0,0,0,1)');
-    grad.addColorStop(0.5,  'rgba(0,0,0,0.92)');
-    grad.addColorStop(0.78, 'rgba(0,0,0,0.55)');
-    grad.addColorStop(1,    'rgba(0,0,0,0)');
-    mctx.fillStyle = grad;
-    mctx.fillRect(0, 0, W, H);
-
-    // Step 4: use mask as alpha channel for the filtered image
-    mctx.globalCompositeOperation = 'source-in';
-    mctx.drawImage(off, 0, 0);
-
-    // Step 5: composite masked filtered layer on top of original
-    ctx.drawImage(mask, 0, 0);
-  }
-
-  const overlay = document.getElementById('tryonOverlay');
-  if (t === 'ppf' && tryonColor !== 'none') {
-    overlay.style.background = tryonColor;
-    overlay.style.opacity    = '0.42';
-  } else if (cfg.color) {
-    overlay.style.background = cfg.color;
-    overlay.style.opacity    = String(cfg.opacity);
-  } else {
-    overlay.style.opacity = '0';
-  }
-
-  const badge = document.getElementById('tryonBadge');
-  if (badge) badge.textContent = cfg.label;
-  const desc = document.getElementById('treatmentDesc');
-  if (desc) desc.textContent = cfg.desc;
-
-  const colorSec = document.getElementById('colorSection');
-  if (colorSec) colorSec.style.display = t === 'ppf' ? 'block' : 'none';
-
-  const cta = document.getElementById('tryonCTA');
-  const ctaWrap = document.getElementById('tryonBookBtn');
-  if (cfg.cta && cta && ctaWrap) {
-    const svc = SERVICES.find(s => s.id === cfg.cta);
-    cta.onclick = () => router.push('service-detail', { id: cfg.cta });
-    ctaWrap.style.display = 'block';
-    cta.textContent = `Записаться на ${svc?.short || cfg.cta} →`;
-  } else if (ctaWrap) {
-    ctaWrap.style.display = 'none';
-  }
-
-  document.querySelectorAll('.treatment-btn').forEach(b =>
-    b.classList.toggle('treatment-btn--active', b.dataset.t === t)
-  );
+function loadDemoCar() {
+  haptic('light');
+  tryonImg = new Image();
+  tryonImg.onload = () => showTryonWorkspace();
+  tryonImg.src = 'assets/gwagon-body.jpg';
 }
 
-function setTryonColor(color) {
-  tryonColor = color;
-  document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('color-swatch--active', s.dataset.color === color));
+function showTryonWorkspace() {
+  const uploadZone = document.getElementById('tryonUploadZone');
+  const workspace  = document.getElementById('tryonWorkspace');
+  if (uploadZone) uploadZone.style.display = 'none';
+  if (workspace)  workspace.style.display  = 'block';
+  if (tryonMode === 'interior') {
+    tryonMode = 'body';
+    document.querySelectorAll('.tryon-tab').forEach(b =>
+      b.classList.toggle('tryon-tab--active', b.dataset.mode === 'body'));
+  }
+  renderTryonControls();
+  setTimeout(applyTryonEffect, 40);
+}
+
+/* ── Effect setters ───────────────────────────── */
+function setBodyFx(fx) {
+  tryonBodyFx = fx;
+  if (fx !== 'wrap' && fx !== 'ppf') tryonWrapHex = null;
   haptic('selection');
-  const overlay = document.getElementById('tryonOverlay');
-  if (color === 'none') { overlay.style.opacity = '0'; }
-  else { overlay.style.background = color; overlay.style.opacity = '0.42'; }
+  document.querySelectorAll('[data-t]').forEach(b =>
+    b.classList.toggle('treatment-btn--active', b.dataset.t === fx));
+  renderTryonControls();
+  applyTryonEffect();
+}
+
+function setWrapColor(id, hexStr) {
+  tryonWrapHex = (!hexStr || hexStr === 'null') ? null : hexStr;
+  haptic('selection');
+  document.querySelectorAll('.wrap-swatch').forEach(s =>
+    s.classList.toggle('wrap-swatch--active', s.dataset.cid === id));
+  applyTryonEffect();
+}
+
+function setTintLevel(id) {
+  tryonTintId = id;
+  haptic('selection');
+  document.querySelectorAll('.tint-btn').forEach(b =>
+    b.classList.toggle('tint-btn--active', b.dataset.tid === id));
+  applyTryonEffect();
+}
+
+function setWheelColor(id, hexStr) {
+  tryonWheelHex = (!hexStr || hexStr === 'null') ? null : hexStr;
+  haptic('selection');
+  document.querySelectorAll('.wheel-swatch').forEach(s =>
+    s.classList.toggle('wheel-swatch--active', s.dataset.wid === id));
+  applyTryonEffect();
 }
 
 function resetTryon() {
-  tryonImg = null; tryonTreatment = 'original'; tryonColor = 'none';
+  tryonImg = null; tryonBodyFx = 'original'; tryonWrapHex = null;
+  tryonTintId = 't50'; tryonWheelHex = null;
   const up = document.getElementById('tryonUploadZone');
   const ws = document.getElementById('tryonWorkspace');
-  const fi = document.getElementById('tryonFile');
+  const fi = document.getElementById('tryonFileMain');
   if (up) up.style.display = 'flex';
   if (ws) ws.style.display = 'none';
   if (fi) fi.value = '';
+}
+
+/* ── Before/After slider ──────────────────────── */
+function initBASlider() {
+  setupBASlider('baWrap', 'baHandle', 'baAfterMask');
+}
+
+function setupBASlider(wrapId, handleId, maskId) {
+  const wrap   = document.getElementById(wrapId);
+  const handle = document.getElementById(handleId);
+  const mask   = document.getElementById(maskId);
+  if (!wrap || !handle || !mask) return;
+
+  let dragging = false;
+
+  function setPos(clientX) {
+    const rect = wrap.getBoundingClientRect();
+    let pct = ((clientX - rect.left) / rect.width) * 100;
+    pct = Math.max(3, Math.min(97, pct));
+    mask.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+    handle.style.left   = pct + '%';
+  }
+
+  handle.addEventListener('pointerdown', e => {
+    dragging = true;
+    handle.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  handle.addEventListener('pointermove', e => { if (dragging) setPos(e.clientX); });
+  handle.addEventListener('pointerup',   () => { dragging = false; });
+  wrap.addEventListener('pointerdown', e => {
+    if (e.target === handle || handle.contains(e.target)) return;
+    setPos(e.clientX);
+  });
+
+  const rect = wrap.getBoundingClientRect();
+  if (rect.width > 0) setPos(rect.left + rect.width * 0.5);
+}
+
+/* ── Interior photo simulation ────────────────── */
+function loadInteriorPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => renderInteriorSim(img);
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderInteriorSim(img) {
+  const result = document.getElementById('tryonInteriorResult');
+  if (!result) return;
+  result.style.display = 'block';
+
+  const beforeC = document.getElementById('baUserBefore');
+  const afterC  = document.getElementById('baUserAfter');
+  if (!beforeC || !afterC) return;
+
+  const ratio = img.naturalHeight / img.naturalWidth;
+  const maxW  = result.clientWidth || 300;
+  const dpr   = window.devicePixelRatio || 1;
+  const W = Math.min(maxW * dpr, 1000), H = W * ratio;
+
+  [beforeC, afterC].forEach(c => {
+    c.width = W; c.height = H;
+    c.style.width  = '100%';
+    c.style.height = (maxW * ratio) + 'px';
+  });
+
+  beforeC.getContext('2d').drawImage(img, 0, 0, W, H);
+
+  const actx = afterC.getContext('2d');
+  actx.filter = 'brightness(1.28) contrast(1.2) saturate(1.4)';
+  actx.drawImage(img, 0, 0, W, H);
+  actx.filter = 'none';
+  actx.globalCompositeOperation = 'screen';
+  actx.fillStyle = 'rgba(255,245,230,0.06)';
+  actx.fillRect(0, 0, W, H);
+  actx.globalCompositeOperation = 'source-over';
+
+  setTimeout(() => setupBASlider('baUserWrap', 'baUserHandle', 'baUserAfterMask'), 60);
+  result.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ══════════════════════════════════════════════
