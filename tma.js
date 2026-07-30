@@ -1337,12 +1337,52 @@ function applyTreatment(t) {
   const wrap = canvas.parentElement;
   const maxW = wrap.clientWidth;
   const ratio = tryonImg.naturalHeight / tryonImg.naturalWidth;
-  canvas.width  = Math.min(maxW * (window.devicePixelRatio || 1), 1400);
+  const dpr   = window.devicePixelRatio || 1;
+  canvas.width  = Math.min(maxW * dpr, 1400);
   canvas.height = canvas.width * ratio;
   canvas.style.width  = maxW + 'px';
   canvas.style.height = (maxW * ratio) + 'px';
-  ctx.drawImage(tryonImg, 0, 0, canvas.width, canvas.height);
-  canvas.style.filter = cfg.filter;
+  canvas.style.filter = 'none';
+
+  const W = canvas.width, H = canvas.height;
+
+  if (!cfg.filter || cfg.filter === 'none') {
+    // Original — just draw as-is
+    ctx.drawImage(tryonImg, 0, 0, W, H);
+  } else {
+    // Step 1: draw original image (background stays untouched)
+    ctx.drawImage(tryonImg, 0, 0, W, H);
+
+    // Step 2: create off-screen canvas with filter applied to full image
+    const off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    const octx = off.getContext('2d');
+    octx.filter = cfg.filter;
+    octx.drawImage(tryonImg, 0, 0, W, H);
+    octx.filter = 'none';
+
+    // Step 3: create mask canvas — radial gradient so filter is strong
+    //         in the center (car) and fades out toward the background edges
+    const mask = document.createElement('canvas');
+    mask.width = W; mask.height = H;
+    const mctx = mask.getContext('2d');
+    const cx = W * 0.5, cy = H * 0.52; // slightly below center (car body)
+    const r  = Math.max(W, H) * 0.58;
+    const grad = mctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0,    'rgba(0,0,0,1)');
+    grad.addColorStop(0.5,  'rgba(0,0,0,0.92)');
+    grad.addColorStop(0.78, 'rgba(0,0,0,0.55)');
+    grad.addColorStop(1,    'rgba(0,0,0,0)');
+    mctx.fillStyle = grad;
+    mctx.fillRect(0, 0, W, H);
+
+    // Step 4: use mask as alpha channel for the filtered image
+    mctx.globalCompositeOperation = 'source-in';
+    mctx.drawImage(off, 0, 0);
+
+    // Step 5: composite masked filtered layer on top of original
+    ctx.drawImage(mask, 0, 0);
+  }
 
   const overlay = document.getElementById('tryonOverlay');
   if (t === 'ppf' && tryonColor !== 'none') {
